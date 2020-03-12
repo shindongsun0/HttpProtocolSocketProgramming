@@ -12,10 +12,10 @@ import java.net.Socket;
 import java.security.AccessControlException;
 
 public class GETHandler extends HTTPHandler{
-    public GETHandler(Socket clientSocket, String requestHeader, File root) throws FileNotFoundException {
+    public GETHandler(Socket socket, String requestHeader, File root) throws FileNotFoundException {
         rootDirectory = root;
-        requestHeader = requestSHeader;
-        clientSocket = clientSocket;
+        requestSHeader = requestHeader;
+        clientSocket = socket;
         requestedFile = getFile(rootDirectory.getAbsolutePath()+getPathFromHeader());
         responseGenerator = new ResponseGenerator(StatusCodes.OK, getFileType(requestedFile.getAbsolutePath()), requestedFile.length());
         generateResponseHeader();

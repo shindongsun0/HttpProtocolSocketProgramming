@@ -18,16 +18,16 @@ public class ClientHandler implements Runnable {
         this.clientSocket = clientSocket;
     }
 
-    private void printNewThread() {
-        InetAddress inetAddress = clientSocket.getInetAddress();
-        System.out.println(inetAddress.getHostAddress() + "connected to Server");
-        System.out.println(Thread.currentThread().getName() + "started!!");
-    }
-
     @Override
     public void run() {
         printNewThread();
         readResponse();
+    }
+
+    private void printNewThread() {
+        InetAddress inetAddress = clientSocket.getInetAddress();
+        System.out.println(inetAddress.getHostAddress() + "connected to Server");
+        System.out.println(Thread.currentThread().getName() + "started!!");
     }
 
     private void readResponse(){
