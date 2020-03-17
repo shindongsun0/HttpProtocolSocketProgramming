@@ -43,7 +43,7 @@ public class ClientHandler implements Runnable {
             } while (line.getBytes().length != 0);
 
             requestHeader = builder.toString();
-
+            System.out.println(requestHeader);
             if (!isHTTPRequest()) {
                 System.out.println("NOT a HTTP request");
                 clientSocket.close();
@@ -96,7 +96,7 @@ public class ClientHandler implements Runnable {
 
     private boolean isHTTPRequest() {
         String[] splitHeader = requestHeader.split("\\s");
-
+        System.out.println(splitHeader.toString());
         if(splitHeader.length < 3){
             return false;
         }

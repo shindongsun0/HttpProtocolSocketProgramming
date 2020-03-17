@@ -37,10 +37,10 @@ public class MultiThreadServer {
     }
     public static void main(String[] args){
         MultiThreadServer server = new MultiThreadServer(10005);
-        if(!validRootPath(args[0])) {
+       /* if(!validRootPath(args[0])) {
             System.err.println("Provided root directory does not exist or is not a directory");
             System.exit(1);
-        }
+        }*/
         server.start();
     }
 
