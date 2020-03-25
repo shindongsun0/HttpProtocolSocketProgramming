@@ -3,7 +3,6 @@ package server;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,9 +23,7 @@ public class MultiThreadServer {
             System.out.println("Starting the socket server at port: " + port);
             ExecutorService executorService = Executors.newCachedThreadPool();
 
-            File filePath = new File("index.html");
-
-            Socket clientSocket = null;
+            File filePath = new File(System.getProperty("user.dir"));
             while(!executorService.isShutdown()){
                 executorService.execute(new ClientHandler(serverSocket.accept(), filePath));
             }
@@ -37,10 +34,6 @@ public class MultiThreadServer {
     }
     public static void main(String[] args){
         MultiThreadServer server = new MultiThreadServer(10005);
-       /* if(!validRootPath(args[0])) {
-            System.err.println("Provided root directory does not exist or is not a directory");
-            System.exit(1);
-        }*/
         server.start();
     }
 

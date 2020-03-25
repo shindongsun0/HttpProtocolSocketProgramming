@@ -10,11 +10,11 @@ import java.net.Socket;
 
 public class ClientHandler implements Runnable {
     private Socket clientSocket;
-    private File root;
+    private File rootDirectory;
     private String requestHeader;
 
-    public ClientHandler(Socket clientSocket, File rootDirectory) {
-        this.root = rootDirectory;
+    public ClientHandler(Socket clientSocket, File root) {
+        this.rootDirectory= root;
         this.clientSocket = clientSocket;
     }
 
@@ -26,8 +26,8 @@ public class ClientHandler implements Runnable {
 
     private void printNewThread() {
         InetAddress inetAddress = clientSocket.getInetAddress();
-        System.out.println(inetAddress.getHostAddress() + "connected to Server");
-        System.out.println(Thread.currentThread().getName() + "started!!");
+        System.out.println(inetAddress.getHostAddress() + " connected to Server");
+        System.out.println(Thread.currentThread().getName() + " started!!");
     }
 
     private void readResponse(){
@@ -49,23 +49,24 @@ public class ClientHandler implements Runnable {
                 clientSocket.close();
                 return;
             }
+
             String requestType = getHTTPMethod();
 
             HTTPHandler handler = null;
             try {
                 if (getPathFromHeader().contentEquals("/oldpage.html")) {
-                    handler = new RedirectHandler(clientSocket, requestHeader, root, StatusCodes.FOUND, "newpage");
+                    handler = new RedirectHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.FOUND, "newpage");
                 } else if (requestType.contentEquals("GET")) {
-                    handler = new GETHandler(clientSocket, requestHeader, root);
+                    handler = new GETHandler(clientSocket, requestHeader, rootDirectory);
                 } else if (requestType.contentEquals("POST")) {
-                    handler = new POSTHandler(clientSocket, requestHeader, root);
+                    handler = new POSTHandler(clientSocket, requestHeader, rootDirectory);
                 }
             } catch (FileNotFoundException e) {
                 //404 FILE NOT FOUND
-                handler = new ErrorHandler(clientSocket, requestHeader, root);
+                handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory);
             } catch (IllegalArgumentException | SecurityException e) {
                 //500 INTERNAL SERVER ERROR
-                handler = new ErrorHandler(clientSocket, requestHeader, root, StatusCodes.SERVER_ERROR);
+                handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.SERVER_ERROR);
             }
         } catch(IOException e){
             System.out.println("Could not send data on port " + clientSocket.getPort());
@@ -96,11 +97,10 @@ public class ClientHandler implements Runnable {
 
     private boolean isHTTPRequest() {
         String[] splitHeader = requestHeader.split("\\s");
-        System.out.println(splitHeader.toString());
         if(splitHeader.length < 3){
             return false;
         }
-        if(splitHeader[2].contains("HTTP"))
+        if(!splitHeader[2].contains("HTTP"))
             return false;
         return true;
     }

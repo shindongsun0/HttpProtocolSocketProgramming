@@ -16,9 +16,10 @@ public class GETHandler extends HTTPHandler{
         rootDirectory = root;
         requestSHeader = requestHeader;
         clientSocket = socket;
-        requestedFile = getFile(rootDirectory.getAbsolutePath()+getPathFromHeader());
+        requestedFile = getFile(getPathFromHeader());
         responseGenerator = new ResponseGenerator(StatusCodes.OK, getFileType(requestedFile.getAbsolutePath()), requestedFile.length());
         generateResponseHeader();
+        handle();
     }
 
     @Override
@@ -31,7 +32,7 @@ public class GETHandler extends HTTPHandler{
             writer.write(responseHeader, 0, responseHeader.length());
             writer.flush();
 
-            writeFileToStream(requestedFile);
+            writeMessageBody(requestedFile);
             writer.flush();
         } catch (IOException e) {
             System.err.println("can't write to stream");

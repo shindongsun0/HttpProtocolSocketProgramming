@@ -42,7 +42,7 @@ public class HttpClient {
             InputStream in = socket.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
             String number;
-            if ((number = bufferedReader.readLine()) != null){
+            while ((number = bufferedReader.readLine()) != null){
                 System.out.println(number);
             }
         } catch(IOException e) {

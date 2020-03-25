@@ -48,10 +48,10 @@ public abstract class HTTPHandler {
         return path;
     }
 
-    protected  void generateResponseHeader(){
-        responseHeader = responseGenerator.getResponseHeader();
+    protected void generateResponseHeader(){
+        this.responseHeader = responseGenerator.getResponseHeader();
     }
-    protected void writeFileToStream(File file){
+    protected void writeMessageBody(File file){
         FileInputStream fileInputStream = null;
         try{
             fileInputStream = new FileInputStream(file);
