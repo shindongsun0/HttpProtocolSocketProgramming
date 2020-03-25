@@ -79,7 +79,7 @@ public class ClientHandler implements Runnable {
             }
 
         }
-        }
+    }
 
     private String getHTTPMethod() {
         String[] splitHeader = requestHeader.split("\\s");

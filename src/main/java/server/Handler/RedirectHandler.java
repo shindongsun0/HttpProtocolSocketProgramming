@@ -15,7 +15,7 @@ public class RedirectHandler extends HTTPHandler{
         requestSHeader = requestHeader;
         requestedFile = root;
         requestedFile = getFile(rootDirectory.getAbsolutePath() + newpage);
-        responseGenerator = new ResponseGenerator(statusCodes, true, newpage, 0);
+//        responseGenerator = new ResponseGenerator(statusCodes, true, newpage, 0);
         generateResponseHeader();
     }
 

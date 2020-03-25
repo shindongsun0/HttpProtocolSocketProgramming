@@ -1,5 +1,8 @@
 package server.Response;
 
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import java.util.Arrays;
 
 public class ResponseGenerator {
@@ -15,42 +18,40 @@ public class ResponseGenerator {
         this.responseHeader = new StringBuilder();
         this.includeLocation = false;
         this.contentLength = fileContentLength;
-        this.contentType = isContentType(type);
+        this.contentType = isContentType(type.toUpperCase()).getType();
         generateResponseHeader();
     }
 
-    private String isContentType(String type) throws IllegalArgumentException{
-        type = type.toUpperCase();
+    public ResponseGenerator(StatusCodes statusCodes) throws IllegalArgumentException {
+        this.status = statusCodes.getStatus();
+        this.responseHeader = new StringBuilder();
+        generate404ResponseHeader();
+    }
 
-        String finalType = type;
-        ContentType foundType = Arrays.stream(ContentType.values())
-                .filter(contentType -> contentType.toString().equals(finalType))
+    private ContentType isContentType(String type){
+        return Arrays.stream(ContentType.values())
+                .filter(contentType -> contentType.toString().equals(type))
                 .findAny()
-                .orElse(null);
-
-        if(foundType != null)
-            return foundType.getType();
-        else
-            throw new IllegalArgumentException();
+                .orElseThrow(IllegalArgumentException :: new);
     }
 
     private void generateResponseHeader() {
         this.responseHeader.append("HTTP/1.1 ").append(status).append("\r\n").append("Server: localhost\r\n").append("Connection: close\r\n")
                 .append("Content-Type: ").append(contentType).append("\r\n")
                 .append("Content-Length: ").append(contentLength).append("\r\n")
+                .append("Date: ").append(DateTimeFormat.fullDateTime()).append("\r\n")
                 .append("Location: ").append(location).append("\r\n")
                 .append("\r\n");
     }
 
-    public ResponseGenerator(StatusCodes statusCodes, boolean b, String newpage, long i) {
-        this.status = statusCodes.getStatus();
-        this.contentType = null;
-        this.includeLocation = b;
-        this.location = newpage;
-        this.responseHeader = new StringBuilder();
-        this.contentLength = i;
+    private void generate404ResponseHeader() {
+        this.responseHeader.append("HTTP/1.1 ")
+                .append(status).append("\r\n")
+                .append("Server: localhost\r\n")
+                .append("Connection: close\r\n")
+                .append("Date: ").append(DateTimeFormat.fullDateTime()).append("\r\n")
+                .append("\r\n");
     }
-
     public String getResponseHeader(){
         return responseHeader.toString();
     }
