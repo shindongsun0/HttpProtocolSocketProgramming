@@ -1,8 +1,6 @@
 package client;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Arrays;
@@ -42,7 +40,11 @@ public class HttpClient {
     private static void readResponseHeader(Socket socket){
         try{
             InputStream in = socket.getInputStream();
-            StringBuffer response = new StringBuffer();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
+            String number;
+            if ((number = bufferedReader.readLine()) != null){
+                System.out.println(number);
+            }
         } catch(IOException e) {
             System.err.println("cannot get inputstream connection");
         }
