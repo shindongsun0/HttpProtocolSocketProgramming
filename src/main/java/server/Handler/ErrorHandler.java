@@ -16,7 +16,7 @@ public class ErrorHandler extends HTTPHandler{
         clientSocket = socket;
         requestSHeader = requestHeader;
         rootDirectory = root;
-        responseGenerator = new ResponseGenerator(StatusCodes.NOT_FOUND);
+        responseGenerator = new ResponseGenerator(StatusCodes.NOT_FOUND, clientSocket);
         generateResponseHeader();
         handle();
     }

@@ -3,6 +3,10 @@ package server.Response;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 public class ResponseGenerator {
@@ -22,10 +26,10 @@ public class ResponseGenerator {
         generateResponseHeader();
     }
 
-    public ResponseGenerator(StatusCodes statusCodes) throws IllegalArgumentException {
+    public ResponseGenerator(StatusCodes statusCodes, Socket clientSocket) throws IllegalArgumentException {
         this.status = statusCodes.getStatus();
         this.responseHeader = new StringBuilder();
-        generate404ResponseHeader();
+        generate404ResponseHeader(clientSocket);
     }
 
     private ContentType isContentType(String type){
@@ -44,12 +48,15 @@ public class ResponseGenerator {
                 .append("\r\n");
     }
 
-    private void generate404ResponseHeader() {
+    private void generate404ResponseHeader(Socket clientSocket){
+        SimpleDateFormat format1 = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss");
+        String format_time = format1.format(System.currentTimeMillis());
+
         this.responseHeader.append("HTTP/1.1 ")
                 .append(status).append("\r\n")
-                .append("Server: localhost\r\n")
+                .append("Date: ").append(format_time).append("\r\n")
                 .append("Connection: close\r\n")
-                .append("Date: ").append(DateTimeFormat.fullDateTime()).append("\r\n")
+                .append("Server: ").append(clientSocket.getInetAddress()).append(":").append(clientSocket.getPort()).append("\r\n")
                 .append("\r\n");
     }
     public String getResponseHeader(){
