@@ -52,6 +52,7 @@ public abstract class HTTPHandler {
     protected void generateResponseHeader(){
         this.responseHeader = responseGenerator.getResponseHeader();
     }
+
     protected void writeMessageBody(File file){
         FileInputStream fileInputStream = null;
         try{

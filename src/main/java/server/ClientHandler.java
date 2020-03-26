@@ -30,7 +30,7 @@ public class ClientHandler implements Runnable {
         System.out.println(Thread.currentThread().getName() + " started!!");
     }
 
-    private void readResponse(){
+    public void readResponse(){
         try {
             InputStream inputStream = clientSocket.getInputStream();
             BufferedReader request = new BufferedReader(new InputStreamReader(inputStream));

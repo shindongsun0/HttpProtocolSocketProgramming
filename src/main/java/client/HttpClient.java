@@ -6,8 +6,6 @@ import java.net.Socket;
 import java.util.Arrays;
 
 public class HttpClient {
-    //여기에 client socket 코드 작성
-    //get 시 client는 printWriter에 http request 작성
     private static Socket connectSocket(String hostname, int port, int timeout){
         try {
             Socket socket = new Socket();
@@ -23,15 +21,15 @@ public class HttpClient {
 
     private static void makeRequestHeader(Socket socket, String path, String method){
         try {
-            OutputStream out = socket.getOutputStream();
+            OutputStream outputStream = socket.getOutputStream();
             if (method.equals("GET")) {
                 String request = "GET " + path + " HTTP/1.0\r\n"
                         + "Host: localhost\r\n"
                         + "Accept: */*\r\n"
                         + "Accept-Language: en-us\r\n"
                         + "Connection: close\r\n\r\n";
-                out.write(request.getBytes());
-                out.flush();
+                outputStream.write(request.getBytes());
+                outputStream.flush();
             }
         }catch(IOException e){
             System.err.println("can't get stream connection");
@@ -39,8 +37,9 @@ public class HttpClient {
     }
     private static void readResponseHeader(Socket socket){
         try{
-            InputStream in = socket.getInputStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
+            InputStream inputStream = socket.getInputStream();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
             String number;
             while ((number = bufferedReader.readLine()) != null){
                 System.out.println(number);
@@ -52,7 +51,7 @@ public class HttpClient {
 
     public static void main(String[] args){
         Socket socket = connectSocket("localhost", 10005, 5000);
-        makeRequestHeader(socket, "index.html", "GET");
+        makeRequestHeader(socket, "indx.html", "GET");
         readResponseHeader(socket);
     }
 }

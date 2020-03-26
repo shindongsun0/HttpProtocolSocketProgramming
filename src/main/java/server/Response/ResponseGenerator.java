@@ -1,10 +1,6 @@
 package server.Response;
 
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -43,37 +39,38 @@ public class ResponseGenerator {
     }
 
     private void generateResponseHeader() {
+        this.responseHeader.append("HTTP/1.1 ").append(status).append("\r\n")
+                .append("Server: ").append(getHostAddress()).append("\r\n")
+                .append("Connection: close\r\n")
+                .append("Cache-control: private\r\n")
+                .append("Content-Type: ").append(contentType).append("\r\n")
+                .append("Content-Length: ").append(contentLength).append("\r\n")
+                .append("Date: ").append(format_time).append("\r\n")
+                .append("Location: ").append(location).append("\r\n")
+                .append("\r\n");
+    }
+
+    private String getHostAddress(){
         try{
-            this.responseHeader.append("HTTP/1.1 ").append(status).append("\r\n")
-                    .append("Server: ").append(InetAddress.getLocalHost().getHostAddress()).append("\r\n")
-                    .append("Connection: close\r\n")
-                    .append("Cache-control: private\r\n")
-                    .append("Content-Type: ").append(contentType).append("\r\n")
-                    .append("Content-Length: ").append(contentLength).append("\r\n")
-                    .append("Date: ").append(format_time).append("\r\n")
-                    .append("Location: ").append(location).append("\r\n")
-                    .append("\r\n");
+            return InetAddress.getLocalHost().getHostAddress();
         }catch(UnknownHostException e){
             System.out.println(e.toString());
             System.out.println(Arrays.asList(e.getStackTrace()));
+            return e.toString();
         }
     }
 
     private void generate404ResponseHeader(String requestType){
-        try{
-            this.responseHeader.append("HTTP/1.1 ")
-                    .append(status).append("\r\n")
-                    .append("Server: ").append(InetAddress.getLocalHost().getHostAddress()).append("\r\n")
-                    .append("Request Method: ").append(requestType)
-                    .append("Date: ").append(format_time).append("\r\n")
-                    .append("Connection: close\r\n")
-                    .append("Cache-control: private\r\n")
-                    .append("\r\n");
-        }catch(UnknownHostException e){
-            System.out.println(e.toString());
-            System.out.println(Arrays.asList(e.getStackTrace()));
-        }
+        this.responseHeader.append("HTTP/1.1 ")
+                .append(status).append("\r\n")
+                .append("Server: ").append(getHostAddress()).append("\r\n")
+                .append("Request Method: ").append(requestType).append("\r\n")
+                .append("Date: ").append(format_time).append("\r\n")
+                .append("Connection: close\r\n")
+                .append("Cache-control: private\r\n")
+                .append("\r\n");
     }
+
     public String getResponseHeader(){
         return responseHeader.toString();
     }

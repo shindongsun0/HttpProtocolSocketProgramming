@@ -10,11 +10,13 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile "joda-time:joda-time:2.2"
+    testImplementation 'org.mockito:mockito-core:2.7.22'
 }
 
 compileJava.options.encoding = 'UTF-8'
