@@ -14,6 +14,7 @@ public abstract class HTTPHandler {
     protected Socket clientSocket;
     protected File requestedFile;
     protected ResponseGenerator responseGenerator;
+    protected String requestType;
 
     public abstract void handle();
 

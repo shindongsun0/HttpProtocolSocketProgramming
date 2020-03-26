@@ -63,7 +63,7 @@ public class ClientHandler implements Runnable {
                 }
             } catch (FileNotFoundException e) {
                 //404 FILE NOT FOUND
-                handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory);
+                handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, requestType);
             } catch (IllegalArgumentException | SecurityException e) {
                 //500 INTERNAL SERVER ERROR
                 handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.SERVER_ERROR);

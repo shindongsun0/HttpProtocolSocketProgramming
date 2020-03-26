@@ -12,11 +12,12 @@ import java.security.AccessControlException;
 import java.util.Date;
 
 public class ErrorHandler extends HTTPHandler{
-    public ErrorHandler(Socket socket, String requestHeader, File root) {
+    public ErrorHandler(Socket socket, String requestHeader, File root, String clientRequestType) {
         clientSocket = socket;
         requestSHeader = requestHeader;
         rootDirectory = root;
-        responseGenerator = new ResponseGenerator(StatusCodes.NOT_FOUND);
+        requestType = clientRequestType;
+        responseGenerator = new ResponseGenerator(StatusCodes.NOT_FOUND, requestType);
         generateResponseHeader();
         handle();
     }

@@ -17,6 +17,9 @@ public class ResponseGenerator {
     private long contentLength;
     private String contentType;
 
+    SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss");
+    String format_time = format.format(System.currentTimeMillis());
+
     public ResponseGenerator(StatusCodes statusCodes, String type, long fileContentLength) throws IllegalArgumentException{
         this.status = statusCodes.getStatus();
         this.responseHeader = new StringBuilder();
@@ -26,10 +29,10 @@ public class ResponseGenerator {
         generateResponseHeader();
     }
 
-    public ResponseGenerator(StatusCodes statusCodes) throws IllegalArgumentException {
+    public ResponseGenerator(StatusCodes statusCodes, String requestType) throws IllegalArgumentException {
         this.status = statusCodes.getStatus();
         this.responseHeader = new StringBuilder();
-        generate404ResponseHeader();
+        generate404ResponseHeader(requestType);
     }
 
     private ContentType isContentType(String type){
@@ -40,24 +43,31 @@ public class ResponseGenerator {
     }
 
     private void generateResponseHeader() {
-        this.responseHeader.append("HTTP/1.1 ").append(status).append("\r\n").append("Server: localhost\r\n").append("Connection: close\r\n")
-                .append("Content-Type: ").append(contentType).append("\r\n")
-                .append("Content-Length: ").append(contentLength).append("\r\n")
-                .append("Date: ").append(DateTimeFormat.fullDateTime()).append("\r\n")
-                .append("Location: ").append(location).append("\r\n")
-                .append("\r\n");
+        try{
+            this.responseHeader.append("HTTP/1.1 ").append(status).append("\r\n")
+                    .append("Server: ").append(InetAddress.getLocalHost().getHostAddress()).append("\r\n")
+                    .append("Connection: close\r\n")
+                    .append("Cache-control: private\r\n")
+                    .append("Content-Type: ").append(contentType).append("\r\n")
+                    .append("Content-Length: ").append(contentLength).append("\r\n")
+                    .append("Date: ").append(format_time).append("\r\n")
+                    .append("Location: ").append(location).append("\r\n")
+                    .append("\r\n");
+        }catch(UnknownHostException e){
+            System.out.println(e.toString());
+            System.out.println(Arrays.asList(e.getStackTrace()));
+        }
     }
 
-    private void generate404ResponseHeader(){
-        SimpleDateFormat format1 = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss");
-        String format_time = format1.format(System.currentTimeMillis());
-
+    private void generate404ResponseHeader(String requestType){
         try{
             this.responseHeader.append("HTTP/1.1 ")
                     .append(status).append("\r\n")
+                    .append("Server: ").append(InetAddress.getLocalHost().getHostAddress()).append("\r\n")
+                    .append("Request Method: ").append(requestType)
                     .append("Date: ").append(format_time).append("\r\n")
                     .append("Connection: close\r\n")
-                    .append("Server: ").append(InetAddress.getLocalHost().getHostAddress()).append("\r\n")
+                    .append("Cache-control: private\r\n")
                     .append("\r\n");
         }catch(UnknownHostException e){
             System.out.println(e.toString());
