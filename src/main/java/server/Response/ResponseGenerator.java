@@ -26,10 +26,10 @@ public class ResponseGenerator {
         generateResponseHeader();
     }
 
-    public ResponseGenerator(StatusCodes statusCodes, Socket clientSocket) throws IllegalArgumentException {
+    public ResponseGenerator(StatusCodes statusCodes) throws IllegalArgumentException {
         this.status = statusCodes.getStatus();
         this.responseHeader = new StringBuilder();
-        generate404ResponseHeader(clientSocket);
+        generate404ResponseHeader();
     }
 
     private ContentType isContentType(String type){
@@ -48,16 +48,21 @@ public class ResponseGenerator {
                 .append("\r\n");
     }
 
-    private void generate404ResponseHeader(Socket clientSocket){
+    private void generate404ResponseHeader(){
         SimpleDateFormat format1 = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss");
         String format_time = format1.format(System.currentTimeMillis());
 
-        this.responseHeader.append("HTTP/1.1 ")
-                .append(status).append("\r\n")
-                .append("Date: ").append(format_time).append("\r\n")
-                .append("Connection: close\r\n")
-                .append("Server: ").append(clientSocket.getInetAddress()).append(":").append(clientSocket.getPort()).append("\r\n")
-                .append("\r\n");
+        try{
+            this.responseHeader.append("HTTP/1.1 ")
+                    .append(status).append("\r\n")
+                    .append("Date: ").append(format_time).append("\r\n")
+                    .append("Connection: close\r\n")
+                    .append("Server: ").append(InetAddress.getLocalHost().getHostAddress()).append("\r\n")
+                    .append("\r\n");
+        }catch(UnknownHostException e){
+            System.out.println(e.toString());
+            System.out.println(Arrays.asList(e.getStackTrace()));
+        }
     }
     public String getResponseHeader(){
         return responseHeader.toString();
