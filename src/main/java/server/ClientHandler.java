@@ -6,6 +6,7 @@ import server.Response.StatusCodes;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
 
 
 public class ClientHandler implements Runnable {
@@ -21,7 +22,7 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         printNewThread();
-        readResponse();
+        mappingHandler();
     }
 
     private void printNewThread() {
@@ -30,28 +31,53 @@ public class ClientHandler implements Runnable {
         System.out.println(Thread.currentThread().getName() + " started!!");
     }
 
-    public void readResponse(){
+    private BufferedReader readSetUp(){
+        BufferedReader request = null;
         try {
             InputStream inputStream = clientSocket.getInputStream();
-            BufferedReader request = new BufferedReader(new InputStreamReader(inputStream));
-            StringBuilder builder = new StringBuilder();
+            request = new BufferedReader(new InputStreamReader(inputStream));
+        }catch(IOException e){
+            System.out.println("Could not send data on port " + clientSocket.getPort());
+        }
+        return request;
+    }
 
-            String line;
-            do {
+    public String readResponseHeader() {
+        BufferedReader request = readSetUp();
+        StringBuilder builder = new StringBuilder();
+        String line = null;
+        do {
+            try {
                 line = request.readLine();
-                builder.append(line).append("\r\n");
-            } while (line.getBytes().length != 0);
-
-            requestHeader = builder.toString();
-            System.out.println(requestHeader);
-            if (!isHTTPRequest()) {
-                System.out.println("NOT a HTTP request");
-                clientSocket.close();
-                return;
+            } catch (IOException e) {
+                System.out.println(e.toString());
+                System.out.println(Arrays.asList(e.getStackTrace()));
             }
+            builder.append(line).append("\r\n");
+        } while (line.getBytes().length != 0);
 
+        return builder.toString();
+    }
+
+    public boolean decideHTTPRequest(){
+        requestHeader = readResponseHeader();
+        System.out.println(requestHeader);
+
+        if (!isHTTPRequest()) {
+            System.out.println("NOT a HTTP request");
+            try {
+                clientSocket.close();
+                return false;
+            } catch(IOException e){
+                System.out.println("Could not close Socket " + clientSocket);
+            }
+        }
+        return true;
+    }
+
+    public void mappingHandler(){
+        if(decideHTTPRequest()) {
             String requestType = getHTTPMethod();
-
             HTTPHandler handler = null;
             try {
                 if (getPathFromHeader().contentEquals("/oldpage.html")) {
@@ -67,17 +93,14 @@ public class ClientHandler implements Runnable {
             } catch (IllegalArgumentException | SecurityException e) {
                 //500 INTERNAL SERVER ERROR
                 handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.SERVER_ERROR);
+            } finally {
+                try {
+                    clientSocket.close();
+                    System.out.println("Client Socket close!");
+                } catch (IOException e) {
+                    System.out.println("Cannot close client socket");
+                }
             }
-        } catch(IOException e){
-            System.out.println("Could not send data on port " + clientSocket.getPort());
-        }finally {
-            try {
-                clientSocket.close();
-                System.out.println("Client Socket close!");
-            }catch(IOException e){
-                System.out.println("Cannot close client socket");
-            }
-
         }
     }
 
@@ -100,8 +123,6 @@ public class ClientHandler implements Runnable {
         if(splitHeader.length < 3){
             return false;
         }
-        if(!splitHeader[2].contains("HTTP"))
-            return false;
-        return true;
+        return splitHeader[2].contains("HTTP");
     }
 }
