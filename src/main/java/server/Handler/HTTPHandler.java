@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 public abstract class HTTPHandler {
     protected File rootDirectory;
@@ -28,7 +29,7 @@ public abstract class HTTPHandler {
     }
 
     protected String getFileType(String input){
-        String[] splitString = input.split("\\.");
+        String[] splitString = input.split("\\."); //.으로 split함
         return splitString[splitString.length - 1];
     }
 
@@ -39,11 +40,14 @@ public abstract class HTTPHandler {
         if(splitHeader.length < 2)
             throw new IndexOutOfBoundsException();
         path = splitHeader[1];
-        if(path.charAt(path.length() - 1 ) != '/' && Files.isDirectory(Paths.get(rootPath + path)))
+
+        if(path.length() == 0){
+            return path + "mainPage/index.html";
+        }
+        if (path.charAt(path.length() - 1) != '/' && Files.isDirectory(Paths.get(rootPath + "/" + path)))
             path += '/';
-        if(Files.isDirectory(Paths.get(rootPath + path))){
-            if(Files.exists(Paths.get(rootPath + path + "index.html")))
-                return path + "index.html";
+
+        if(Files.isDirectory(Paths.get(rootPath + "/" + path))){
             return path + "index.html";
         }
         return path;

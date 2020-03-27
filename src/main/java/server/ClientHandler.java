@@ -1,5 +1,6 @@
 package server;
 
+import lombok.extern.slf4j.Slf4j;
 import server.Handler.*;
 import server.Response.StatusCodes;
 
@@ -9,6 +10,8 @@ import java.net.Socket;
 import java.util.Arrays;
 
 
+
+@Slf4j
 public class ClientHandler implements Runnable {
     private Socket clientSocket;
     private File rootDirectory;
@@ -69,6 +72,7 @@ public class ClientHandler implements Runnable {
                 clientSocket.close();
                 return false;
             } catch(IOException e){
+                log.error("coludjd {}", clientSocket);
                 System.out.println("Could not close Socket " + clientSocket);
             }
         }

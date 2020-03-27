@@ -1,5 +1,6 @@
 package server.Handler;
 
+import lombok.extern.slf4j.Slf4j;
 import server.Response.ResponseGenerator;
 import server.Response.StatusCodes;
 
@@ -10,7 +11,9 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.security.AccessControlException;
+import java.util.Arrays;
 
+@Slf4j
 public class GETHandler extends HTTPHandler{
     public GETHandler(Socket socket, String requestHeader, File root) throws FileNotFoundException {
         rootDirectory = root;
@@ -35,7 +38,8 @@ public class GETHandler extends HTTPHandler{
             writeMessageBody(requestedFile);
             writer.flush();
         } catch (IOException e) {
-            System.err.println("can't write to stream");
+            log.error("can't write to stream : {}", e.toString());
+            log.error(Arrays.toString(e.getStackTrace()));
         }
     }
 }

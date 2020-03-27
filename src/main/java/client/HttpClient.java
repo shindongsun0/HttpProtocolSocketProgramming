@@ -51,7 +51,8 @@ public class HttpClient {
 
     public static void main(String[] args){
         Socket socket = connectSocket("localhost", 10005, 5000);
-        makeRequestHeader(socket, "indx.html", "GET");
+//        makeRequestHeader(socket, "index.html", "GET");
+        makeRequestHeader(socket, "mainPage/index.html", "GET");
         readResponseHeader(socket);
     }
 }

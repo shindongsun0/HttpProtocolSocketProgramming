@@ -1,10 +1,14 @@
 package server.Response;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
+@Getter
 public class ResponseGenerator {
     private StringBuilder responseHeader;
     private String status;
@@ -13,7 +17,9 @@ public class ResponseGenerator {
     private long contentLength;
     private String contentType;
 
+    @Getter(AccessLevel.NONE)
     SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss");
+    @Getter(AccessLevel.NONE)
     String format_time = format.format(System.currentTimeMillis());
 
     public ResponseGenerator(StatusCodes statusCodes, String type, long fileContentLength) throws IllegalArgumentException{
@@ -31,7 +37,7 @@ public class ResponseGenerator {
         generate404ResponseHeader(requestType);
     }
 
-    private ContentType isContentType(String type){
+    protected ContentType isContentType(String type){
         return Arrays.stream(ContentType.values())
                 .filter(contentType -> contentType.toString().equals(type))
                 .findAny()

@@ -17,6 +17,10 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile "joda-time:joda-time:2.2"
     testImplementation 'org.mockito:mockito-core:2.7.22'
+    implementation 'org.projectlombok:lombok:1.12.2'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+
 }
 
 compileJava.options.encoding = 'UTF-8'

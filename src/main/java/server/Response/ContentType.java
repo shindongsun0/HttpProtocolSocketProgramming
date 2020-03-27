@@ -1,7 +1,11 @@
 package server.Response;
 
 public enum ContentType {
-    CSS("TEXT/css"), HTML("TEXT/html"), JAVASCRIPT("TEXT/javascript"), JSON("Application/json"), XML("Application/xml");
+    CSS("TEXT/css"),
+    HTML("TEXT/html"),
+    JAVASCRIPT("TEXT/javascript"),
+    JSON("Application/json"),
+    XML("Application/xml");
 
     String type;
 
