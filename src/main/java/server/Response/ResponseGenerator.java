@@ -3,6 +3,7 @@ package server.Response;
 import lombok.AccessLevel;
 import lombok.Getter;
 
+import javax.swing.text.AbstractDocument;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -23,7 +24,7 @@ public class ResponseGenerator {
     String format_time = format.format(System.currentTimeMillis());
 
     public ResponseGenerator(StatusCodes statusCodes, String type, long fileContentLength) throws IllegalArgumentException{
-        this.status = statusCodes.getStatus();
+        this.status = statusCodes.get_Status();
         this.responseHeader = new StringBuilder();
         this.includeLocation = false;
         this.contentLength = fileContentLength;
@@ -32,9 +33,19 @@ public class ResponseGenerator {
     }
 
     public ResponseGenerator(StatusCodes statusCodes, String requestType) throws IllegalArgumentException {
-        this.status = statusCodes.getStatus();
+        this.status = statusCodes.get_Status();
         this.responseHeader = new StringBuilder();
         generate404ResponseHeader(requestType);
+    }
+
+    public ResponseGenerator(StatusCodes statusCodes) {
+        this.status = statusCodes.get_Status();
+        this.contentType = null;
+        this.includeLocation = false;
+        this.location = null;
+        this.responseHeader = new StringBuilder();
+        this.contentLength = 0;
+        generateResponseHeader();
     }
 
     protected ContentType isContentType(String type){

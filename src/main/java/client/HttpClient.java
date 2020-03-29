@@ -31,6 +31,17 @@ public class HttpClient {
                 outputStream.write(request.getBytes());
                 outputStream.flush();
             }
+            else if(method.equals("POST")){
+                String request = "POST " + path + " HTTP/1.0\r\n"
+                        + "Host: localhost\r\n"
+                        + "Accept: */*\r\n"
+                        + "Accept-Language: en=us\r\n"
+                        + "Connection: close\r\n"
+                        + "\r\n"
+                        + "color=dark&taste=malty\r\n\r\n";
+                outputStream.write(request.getBytes());
+                outputStream.flush();
+            }
         }catch(IOException e){
             System.err.println("can't get stream connection");
         }

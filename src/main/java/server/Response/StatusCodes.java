@@ -17,10 +17,10 @@ public enum StatusCodes {
           this.code = code;
          this.status = status;
     }
-    public int getCode() {
+    public int get_Code() {
           return this.code;
     }
-    public String getStatus(){
+    public String get_Status(){
        return this.status;
     }
 }
