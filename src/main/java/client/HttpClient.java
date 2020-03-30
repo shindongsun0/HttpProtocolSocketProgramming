@@ -19,7 +19,7 @@ public class HttpClient {
         }
     }
 
-    private static void makeRequestHeader(Socket socket, String path, String method){
+    private static void makeRequestHeader(Socket socket, String path, String method, String body){
         try {
             OutputStream outputStream = socket.getOutputStream();
             if (method.equals("GET")) {
@@ -36,9 +36,7 @@ public class HttpClient {
                         + "Host: localhost\r\n"
                         + "Accept: */*\r\n"
                         + "Accept-Language: en=us\r\n"
-                        + "Connection: close\r\n"
-                        + "\r\n"
-                        + "color=dark&taste=malty\r\n\r\n";
+                        + "Connection: close\r\n\r\n";
                 outputStream.write(request.getBytes());
                 outputStream.flush();
             }
@@ -63,7 +61,8 @@ public class HttpClient {
     public static void main(String[] args){
         Socket socket = connectSocket("localhost", 10005, 5000);
 //        makeRequestHeader(socket, "index.html", "GET");
-        makeRequestHeader(socket, "mainPage/index.html", "GET");
+//        makeRequestHeader(socket, "mainPage/index.html", "GET", null);
+        makeRequestHeader(socket, "mainPage/index.html", "POST", "hihihi");
         readResponseHeader(socket);
     }
 }

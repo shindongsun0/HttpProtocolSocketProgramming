@@ -58,7 +58,6 @@ public class ClientHandler implements Runnable {
             }
             builder.append(line).append("\r\n");
         } while (line.getBytes().length != 0);
-
         return builder.toString();
     }
 
@@ -72,8 +71,7 @@ public class ClientHandler implements Runnable {
                 clientSocket.close();
                 return false;
             } catch(IOException e){
-                log.error("coludjd {}", clientSocket);
-                System.out.println("Could not close Socket " + clientSocket);
+                log.error("Could not close Socket {}", clientSocket);
             }
         }
         return true;

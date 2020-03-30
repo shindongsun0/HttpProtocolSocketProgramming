@@ -23,11 +23,11 @@ public class ResponseGenerator {
     @Getter(AccessLevel.NONE)
     String format_time = format.format(System.currentTimeMillis());
 
-    public ResponseGenerator(StatusCodes statusCodes, String type, long fileContentLength) throws IllegalArgumentException{
+    public ResponseGenerator(StatusCodes statusCodes, String type, long fileLength) throws IllegalArgumentException{
         this.status = statusCodes.get_Status();
         this.responseHeader = new StringBuilder();
         this.includeLocation = false;
-        this.contentLength = fileContentLength;
+        this.contentLength = fileLength;
         this.contentType = isContentType(type.toUpperCase()).getType();
         generateResponseHeader();
     }
@@ -48,6 +48,17 @@ public class ResponseGenerator {
         generateResponseHeader();
     }
 
+    //http created
+    public ResponseGenerator(StatusCodes statusCodes, boolean includeLocation, String location, long fileLength) {
+        this.status = statusCodes.get_Status();
+        this.contentType = null;
+        this.includeLocation = includeLocation;
+        this.location = location;
+        this.responseHeader = new StringBuilder();
+        this.contentLength = fileLength;
+        generateResponseHeader();
+    }
+
     protected ContentType isContentType(String type){
         return Arrays.stream(ContentType.values())
                 .filter(contentType -> contentType.toString().equals(type))
@@ -60,11 +71,17 @@ public class ResponseGenerator {
                 .append("Server: ").append(getHostAddress()).append("\r\n")
                 .append("Connection: close\r\n")
                 .append("Cache-control: private\r\n")
-                .append("Content-Type: ").append(contentType).append("\r\n")
-                .append("Content-Length: ").append(contentLength).append("\r\n")
-                .append("Date: ").append(format_time).append("\r\n")
-                .append("Location: ").append(location).append("\r\n")
-                .append("\r\n");
+                .append("Date: ").append(format_time).append("\r\n");
+        if(contentType != null){
+            this.responseHeader.append("Content-Type: ").append(contentType).append("\r\n");
+        }
+        if(contentLength != 0){
+            this.responseHeader.append("Content-Length: ").append(contentLength).append("\r\n");
+        }
+        if(includeLocation){
+            this.responseHeader.append("Location: ").append(location).append("\r\n");
+        }
+        this.responseHeader.append("\r\n");
     }
 
     private String getHostAddress(){

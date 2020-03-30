@@ -8,18 +8,21 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 
 @Slf4j
 public class POSTHandler extends HTTPHandler{
     private File postContentFile;
     private File locationToUpload;
-    public POSTHandler(Socket socket, String requestHeader, File root) {
+
+    public POSTHandler(Socket socket, String requestHeader, File root) throws FileNotFoundException {
         clientSocket = socket;
         requestSHeader = requestHeader;
         rootDirectory = root;
-        requestedFile = null;
-        locationToUpload = new File(rootDirectory.getAbsolutePath() + "/upload");
+        requestedFile = getFile(getPathFromHeader());
+        locationToUpload = new File(rootDirectory.getAbsolutePath() + "/" + requestedFile);
         postContentFile = null;
 
         if(!checkIfFolderExists()){
@@ -27,6 +30,7 @@ public class POSTHandler extends HTTPHandler{
         }
         responseGenerator = new ResponseGenerator(StatusCodes.CONTINUE);
         generateResponseHeader();
+        handle();
     }
 
     @Override
@@ -39,19 +43,51 @@ public class POSTHandler extends HTTPHandler{
             outputStreamWriter.write(responseHeader, 0, responseHeader.length());
 
             int getByte;
-            String getData = "";
+            StringBuilder getData = new StringBuilder();
             boolean endOfStream = false;
-            while (endOfStream) {
+            while (!endOfStream) {
                 getByte = inputStream.read();
                 char c = (char) getByte;
-                getData += c;
+                getData.append(c);
 
-                if(getData.contains("\r\n\r\n"))
+                if(getData.toString().contains("\r\n\r\n"))
                     endOfStream = true;
             }
+            // Set file intended to write to
+            postContentFile = new File(rootDirectory.getAbsolutePath() + "/" + requestedFile);
 
+            try {
+                int readBytes = 0;
+                byte[] buf = new byte[1024];
+
+                FileOutputStream fileStream = new FileOutputStream(postContentFile, true);
+
+                do {
+                    readBytes = inputStream.read(buf);
+
+                    if (readBytes > 0) {
+                        writeBytesToFileStream(fileStream, buf, 0, readBytes);
+                    }
+                } while (inputStream.available() > 0);
+            } catch (FileNotFoundException e) {
+                log.error("There was a problem with creating the file.");
+            }
+
+            responseGenerator = new ResponseGenerator(StatusCodes.CREATED, true, rootDirectory.getAbsolutePath() + "/" + requestedFile, postContentFile.length());
+            generateResponseHeader();
+
+            // Write 201 response to stream
+            outputStreamWriter.write(responseHeader, 0, responseHeader.length());
+            outputStreamWriter.flush();
         }catch(IOException e){
             log.error("can't write to stream : {}", e.toString());
+            log.error(Arrays.toString(e.getStackTrace()));
+        }
+    }
+    private void writeBytesToFileStream(FileOutputStream file, byte[] buffer, int index, int length){
+        try {
+            file.write(buffer, index, length);
+        } catch (IOException e) {
             log.error(Arrays.toString(e.getStackTrace()));
         }
     }
@@ -75,6 +111,4 @@ public class POSTHandler extends HTTPHandler{
             log.error("cannot write to fileStream");
         }
     }
-
-
 }
