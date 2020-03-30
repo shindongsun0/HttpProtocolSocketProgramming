@@ -37,23 +37,22 @@ public class POSTHandler extends HTTPHandler{
     public void handle() {
         try {
             InputStream inputStream = clientSocket.getInputStream();
-
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(clientSocket.getOutputStream());
 
             outputStreamWriter.write(responseHeader, 0, responseHeader.length());
 
-            int getByte;
-            StringBuilder getData = new StringBuilder();
-            boolean endOfStream = false;
-            while (!endOfStream) {
-                getByte = inputStream.read();
-                char c = (char) getByte;
-                getData.append(c);
-
-                if(getData.toString().contains("\r\n\r\n"))
-                    endOfStream = true;
-            }
-            // Set file intended to write to
+//            int getByte;
+//            StringBuilder getData = new StringBuilder();
+//            boolean endOfStream = false;
+//            while (!endOfStream) {
+//                getByte = inputStream.read();
+//                char c = (char) getByte;
+//                getData.append(c);
+//
+//                if(getData.toString().contains("\r\n\r\n"))
+//                    endOfStream = true;
+//            }
+//            // Set file intended to write to
             postContentFile = new File(rootDirectory.getAbsolutePath() + "/" + requestedFile);
 
             try {
@@ -61,14 +60,26 @@ public class POSTHandler extends HTTPHandler{
                 byte[] buf = new byte[1024];
 
                 FileOutputStream fileStream = new FileOutputStream(postContentFile, true);
+                int getByte;
+                StringBuilder getData = new StringBuilder();
+                boolean endOfStream = false;
 
-                do {
-                    readBytes = inputStream.read(buf);
+                while (!endOfStream) {
+                    getByte = inputStream.read();
+                    char c = (char) getByte;
+                    getData.append(c);
 
-                    if (readBytes > 0) {
-                        writeBytesToFileStream(fileStream, buf, 0, readBytes);
-                    }
-                } while (inputStream.available() > 0);
+                    if(getData.toString().contains("\r\n\r\n"))
+                        endOfStream = true;
+                }
+                writeBytesToFileStream(fileStream, getData, 0, readBytes);
+//                do {
+//                    readBytes = inputStream.read();
+//
+//                    if (readBytes > 0) {
+//                        writeBytesToFileStream(fileStream, buf, 0, readBytes);
+//                    }
+//                } while (inputStream.available() > 0);
             } catch (FileNotFoundException e) {
                 log.error("There was a problem with creating the file.");
             }
@@ -84,9 +95,9 @@ public class POSTHandler extends HTTPHandler{
             log.error(Arrays.toString(e.getStackTrace()));
         }
     }
-    private void writeBytesToFileStream(FileOutputStream file, byte[] buffer, int index, int length){
+    private void writeBytesToFileStream(FileOutputStream file, StringBuilder buffer, int index, int length){
         try {
-            file.write(buffer, index, length);
+            file.write(buffer.toString().getBytes(), index, length);
         } catch (IOException e) {
             log.error(Arrays.toString(e.getStackTrace()));
         }

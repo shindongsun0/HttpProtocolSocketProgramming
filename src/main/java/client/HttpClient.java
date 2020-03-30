@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.Arrays;
 
 public class HttpClient {
+    private static OutputStream outputStream = null;
     private static Socket connectSocket(String hostname, int port, int timeout){
         try {
             Socket socket = new Socket();
@@ -21,7 +22,7 @@ public class HttpClient {
 
     private static void makeRequestHeader(Socket socket, String path, String method, String body){
         try {
-            OutputStream outputStream = socket.getOutputStream();
+            outputStream = socket.getOutputStream();
             if (method.equals("GET")) {
                 String request = "GET " + path + " HTTP/1.0\r\n"
                         + "Host: localhost\r\n"
@@ -39,6 +40,7 @@ public class HttpClient {
                         + "Connection: close\r\n\r\n";
                 outputStream.write(request.getBytes());
                 outputStream.flush();
+                makeRequestBodyHeader(outputStream, body);
             }
         }catch(IOException e){
             System.err.println("can't get stream connection");
@@ -57,12 +59,37 @@ public class HttpClient {
             System.err.println("cannot get inputstream connection");
         }
     }
+//    private static void makeRequestBodyHeader(Socket socket, String body){
+//        try{
+//            outputStream = socket.getOutputStream();
+//            String requestBody = body + "\r\n\r\n";
+//            outputStream.write(requestBody.getBytes());
+//            outputStream.flush();
+//        }catch(IOException e){
+//            e.printStackTrace();
+//        }
+//    }
+    private static void makeRequestBodyHeader(OutputStream outputStream, String body){
+        try{
+            String requestBody = body + "\r\n\r\n";
+            outputStream.write(requestBody.getBytes());
+            outputStream.flush();
+        }catch(IOException e){
+            e.printStackTrace();
+        }finally{
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public static void main(String[] args){
-        Socket socket = connectSocket("localhost", 10005, 5000);
-//        makeRequestHeader(socket, "index.html", "GET");
+        Socket socket = connectSocket("localhost", 10005,10000);
 //        makeRequestHeader(socket, "mainPage/index.html", "GET", null);
-        makeRequestHeader(socket, "mainPage/index.html", "POST", "hihihi");
+        makeRequestHeader(socket, "mainPage/index.html", "POST", "hihi");
+//        makeRequestBodyHeader(socket, "hihihi");
         readResponseHeader(socket);
     }
 }
