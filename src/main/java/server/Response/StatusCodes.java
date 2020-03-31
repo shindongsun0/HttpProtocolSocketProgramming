@@ -1,7 +1,6 @@
 package server.Response;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public enum StatusCodes {
@@ -17,7 +16,7 @@ public enum StatusCodes {
 
 
     StatusCodes(int code, String status){
-          this.code = code;
-         this.status = status;
+        this.code = code;
+        this.status = status;
     }
 }

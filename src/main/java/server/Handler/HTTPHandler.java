@@ -35,22 +35,26 @@ public abstract class HTTPHandler {
         return splitString[splitString.length - 1];
     }
 
-    protected String getPathFromHeader() throws IndexOutOfBoundsException{
-        String rootPath = rootDirectory.getAbsolutePath();
+    protected String getPathFromHeader(){
         String path;
         String[] splitHeader = requestSHeader.split("\\s");
         if(splitHeader.length < 2)
             throw new IndexOutOfBoundsException();
         path = splitHeader[1];
+        return path;
+    }
 
+    protected String validatePath() throws IndexOutOfBoundsException{
+        String rootPath = rootDirectory.getAbsolutePath();
+        String path = getPathFromHeader();
         if(path.length() == 0){
-            return path + "mainPage/index.html";
+            return path + "mainPage/hello.html";
         }
         if (path.charAt(path.length() - 1) != '/' && Files.isDirectory(Paths.get(rootPath + "/" + path)))
             path += '/';
 
         if(Files.isDirectory(Paths.get(rootPath + "/" + path))){
-            return path + "index.html";
+            return path + "hello.html";
         }
         return path;
     }
@@ -63,15 +67,14 @@ public abstract class HTTPHandler {
         FileInputStream fileInputStream = null;
         try{
             fileInputStream = new FileInputStream(file);
-            OutputStream out;
+            OutputStream outputStream = clientSocket.getOutputStream();
             byte[] buffer = new byte[1024];
-            out = clientSocket.getOutputStream();
 
             int readBytes = 0;
             while(fileInputStream.available() > 0 && readBytes != -1){
                 readBytes = fileInputStream.read(buffer);
                 if(readBytes > 0){
-                    out.write(buffer);
+                    outputStream.write(buffer);
                 }
             }
         } catch (FileNotFoundException e) {

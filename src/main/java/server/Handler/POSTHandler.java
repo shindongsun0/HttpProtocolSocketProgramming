@@ -21,7 +21,7 @@ public class POSTHandler extends HTTPHandler{
         clientSocket = socket;
         requestSHeader = requestHeader;
         rootDirectory = root;
-        requestedFile = getFile(getPathFromHeader());
+        requestedFile = getFile(validatePath());
         locationToUpload = new File(rootDirectory.getAbsolutePath() + "/" + requestedFile);
         postContentFile = null;
 
@@ -32,25 +32,30 @@ public class POSTHandler extends HTTPHandler{
 
     @Override
     public void handle() {
+        updatePostData();
+        sendResponseToClient();
+    }
+
+    private void updatePostData(){
+        postContentFile = new File(rootDirectory.getAbsolutePath() + "/" + requestedFile);
+        try {
+            FileOutputStream fileStream = new FileOutputStream(postContentFile, true);
+            String[] getData = requestSHeader.split("\r\n");
+            int readBytes = getData[getData.length - 1].length();
+            writeBytesToFileStream(fileStream, getData[getData.length - 1], 0, readBytes);
+        } catch (FileNotFoundException e) {
+            log.error("There was a problem with creating the file. {}", e.toString());
+        }
+    }
+
+    private void sendResponseToClient(){
         try {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(clientSocket.getOutputStream());
-            postContentFile = new File(rootDirectory.getAbsolutePath() + "/" + requestedFile);
-
-            try {
-                FileOutputStream fileStream = new FileOutputStream(postContentFile, true);
-                String[] getData = requestSHeader.split("\r\n");
-                int readBytes = getData[getData.length - 1].length();
-                writeBytesToFileStream(fileStream, getData[getData.length - 1], 0, readBytes);
-            } catch (FileNotFoundException e) {
-                log.error("There was a problem with creating the file. {}", e.toString());
-            }
-
             responseGenerator = new ResponseGenerator(StatusCodes.CREATED, true, rootDirectory.getAbsolutePath() + "/" + requestedFile, postContentFile.length());
             generateResponseHeader();
-
             outputStreamWriter.write(responseHeader, 0, responseHeader.length());
             outputStreamWriter.flush();
-        }catch(IOException e){
+        } catch(IOException e){
             log.error("can't write to stream : {}", e.toString());
             log.error(Arrays.toString(e.getStackTrace()));
         }

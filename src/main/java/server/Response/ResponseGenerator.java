@@ -3,7 +3,6 @@ package server.Response;
 import lombok.AccessLevel;
 import lombok.Getter;
 
-import javax.swing.text.AbstractDocument;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -53,9 +52,9 @@ public class ResponseGenerator {
         generateResponseHeader();
     }
 
-    protected ContentType isContentType(String type){
-        return Arrays.stream(ContentType.values())
-                .filter(contentType -> contentType.toString().equals(type))
+    protected MimeType isContentType(String type){
+        return Arrays.stream(MimeType.values())
+                .filter(mimeType -> mimeType.toString().equals(type))
                 .findAny()
                 .orElseThrow(IllegalArgumentException :: new);
     }

@@ -66,8 +66,8 @@ public class ResponseGeneratorTest {
     @Test
     public void ContentType_Matched_In_isContentType(){
         responseGenerator = new ResponseGenerator(StatusCodes.OK, "HTML", 176);
-        ContentType contentType = responseGenerator.isContentType("HTML");
-        Assert.assertEquals(contentType, ContentType.HTML);
+        MimeType mimeType = responseGenerator.isContentType("HTML");
+        Assert.assertEquals(mimeType, MimeType.HTML);
     }
 
 

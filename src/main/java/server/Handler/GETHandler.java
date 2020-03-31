@@ -3,6 +3,7 @@ package server.Handler;
 import lombok.extern.slf4j.Slf4j;
 import server.Response.ResponseGenerator;
 import server.Response.StatusCodes;
+import sun.java2d.pipe.ValidatePipe;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,7 +19,7 @@ public class GETHandler extends HTTPHandler{
         rootDirectory = root;
         requestSHeader = requestHeader;
         clientSocket = socket;
-        requestedFile = getFile(getPathFromHeader());
+        requestedFile = getFile(validatePath());
         responseGenerator = new ResponseGenerator(StatusCodes.OK, getFileType(requestedFile.getAbsolutePath()), requestedFile.length());
         generateResponseHeader();
     }

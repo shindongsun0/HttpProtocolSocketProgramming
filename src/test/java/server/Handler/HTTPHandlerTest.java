@@ -77,21 +77,21 @@ public class HTTPHandlerTest {
     public void getPathFromHeader_성공_return_path() {
         requestSHeader = getRequestSHeader("index.html");
         HTTPImpl successTest = new HTTPImpl(requestSHeader, rootDirectory);
-        String result = successTest.getPathFromHeader();
+        String result = successTest.validatePath();
         assertEquals("index.html", result);
     }
     @Test
     public void getPathFromHeader_성공_if_empty_path(){
         requestSHeader = getRequestSHeader("");
         HTTPImpl successTest = new HTTPImpl(requestSHeader, rootDirectory);
-        String result = successTest.getPathFromHeader();
+        String result = successTest.validatePath();
         assertEquals("mainPage/index.html", result);
     }
     @Test(expected = IndexOutOfBoundsException.class)
     public void getPathFromHeader_실패_IndexOutOfBoundsException(){
         requestSHeader = getWrongRequestHeader();
         HTTPImpl failTest = new HTTPImpl(requestSHeader, rootDirectory);
-        String result = failTest.getPathFromHeader();
+        String result = failTest.validatePath();
     }
 
     private class HTTPImpl extends HTTPHandler{
