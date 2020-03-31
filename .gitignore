@@ -3,3 +3,7 @@
 /build/
 /out/
 /out/production/classes/
+.idea
+
+.idea/compiler.xml
+.idea/vcs.xml
