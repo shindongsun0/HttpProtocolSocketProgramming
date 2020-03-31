@@ -28,12 +28,12 @@ public class POSTHandler extends HTTPHandler {
 
     @Override
     public void handle() {
-        updatePostData();
+        File postContentFile = new File(rootDirectory.getAbsolutePath() + "/" + requestedFile);
+        updatePostData(postContentFile);
         sendResponseToClient();
     }
 
-    private void updatePostData() {
-        postContentFile = new File(rootDirectory.getAbsolutePath() + "/" + requestedFile);
+    private void updatePostData(File postContentFile) {
         try {
             FileOutputStream fileStream = new FileOutputStream(postContentFile, true);
             String[] getData = requestSHeader.split("\r\n");
@@ -73,7 +73,5 @@ public class POSTHandler extends HTTPHandler {
         if (!locationToUpload.mkdir()) {
             throw new SecurityException();
         }
-
-        // TODO 만드는 코드
     }
 }

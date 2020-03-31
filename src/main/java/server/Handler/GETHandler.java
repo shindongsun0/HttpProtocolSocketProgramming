@@ -20,7 +20,7 @@ public class GETHandler extends HTTPHandler {
         clientSocket = socket;
         requestedFile = getFile(validatePath());
         responseGenerator = new ResponseGenerator(StatusCodes.OK, getFileType(requestedFile.getAbsolutePath()), requestedFile.length());
-        setResponseHandler(responseHeader);
+        this.setResponseHandler(responseGenerator.getResponseHeader());
     }
 
     @Override

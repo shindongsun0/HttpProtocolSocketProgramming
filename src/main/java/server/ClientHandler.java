@@ -26,12 +26,12 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        printNewThread();
+        printNewThread(clientSocket);
         mappingHandler();
     }
 
-    private void printNewThread() {
-        InetAddress inetAddress = clientSocket.getInetAddress();
+    private void printNewThread(Socket socket) {
+        InetAddress inetAddress = socket.getInetAddress();
         System.out.println(inetAddress.getHostAddress() + " connected to Server");
         System.out.println(Thread.currentThread().getName() + " started!!");
     }
