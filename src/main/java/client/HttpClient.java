@@ -66,25 +66,6 @@ public class HttpClient {
             System.err.println("cannot get inputstream connection");
         }
     }
-//    private static void makeRequestBodyHeader(Socket socket, String body){
-//        try{
-//            outputStream = socket.getOutputStream();
-//            String requestBody = body + "\r\n\r\n";
-//            outputStream.write(requestBody.getBytes());
-//            outputStream.flush();
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
-//    }
-    private static void makeRequestBodyHeader(OutputStream outputStream, String body){
-        try{
-            String requestBody = body + "\r\n\r\n";
-            outputStream.write(requestBody.getBytes());
-            outputStream.flush();
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-    }
 
     public static void main(String[] args){
         Socket socket = connectSocket("localhost", 10005,10000);

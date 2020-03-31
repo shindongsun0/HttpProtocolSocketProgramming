@@ -57,18 +57,6 @@ public class ClientHandler implements Runnable {
                 System.out.println(Arrays.asList(e.getStackTrace()));
             }
             builder.append(line).append("\r\n");
-//            for(int i = 0; i < line.length(); i++){
-////                line.charAt(i);
-//                System.out.printf("%d\n",(int)line.charAt(i));
-//                System.out.printf("%s\n",line.charAt(i));
-//            }
-//            if(line.equals("\r\n")){
-//                System.out.println("알엔");
-//            }
-//            if(line.equals("\r\n\r\n")){
-//                System.out.println("알엔*2");
-//            }
-
         } while (!line.equals(""));
         return builder.toString();
     }
