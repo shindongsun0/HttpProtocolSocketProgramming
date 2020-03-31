@@ -40,46 +40,13 @@ public class POSTHandler extends HTTPHandler{
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(clientSocket.getOutputStream());
 
             outputStreamWriter.write(responseHeader, 0, responseHeader.length());
-
-//            int getByte;
-//            StringBuilder getData = new StringBuilder();
-//            boolean endOfStream = false;
-//            while (!endOfStream) {
-//                getByte = inputStream.read();
-//                char c = (char) getByte;
-//                getData.append(c);
-//
-//                if(getData.toString().contains("\r\n\r\n"))
-//                    endOfStream = true;
-//            }
-//            // Set file intended to write to
             postContentFile = new File(rootDirectory.getAbsolutePath() + "/" + requestedFile);
 
             try {
-                int readBytes = 0;
-                byte[] buf = new byte[1024];
-
                 FileOutputStream fileStream = new FileOutputStream(postContentFile, true);
-                int getByte;
-                StringBuilder getData = new StringBuilder();
-                boolean endOfStream = false;
-
-                while (!endOfStream) {
-                    getByte = inputStream.read();
-                    char c = (char) getByte;
-                    getData.append(c);
-
-                    if(getData.toString().contains("\r\n\r\n"))
-                        endOfStream = true;
-                }
-                writeBytesToFileStream(fileStream, getData, 0, readBytes);
-//                do {
-//                    readBytes = inputStream.read();
-//
-//                    if (readBytes > 0) {
-//                        writeBytesToFileStream(fileStream, buf, 0, readBytes);
-//                    }
-//                } while (inputStream.available() > 0);
+                String[] getData = requestSHeader.split("\r\n");
+                int readBytes = getData[getData.length - 1].length();
+                writeBytesToFileStream(fileStream, getData[getData.length - 1], 0, readBytes);
             } catch (FileNotFoundException e) {
                 log.error("There was a problem with creating the file.");
             }
@@ -87,7 +54,6 @@ public class POSTHandler extends HTTPHandler{
             responseGenerator = new ResponseGenerator(StatusCodes.CREATED, true, rootDirectory.getAbsolutePath() + "/" + requestedFile, postContentFile.length());
             generateResponseHeader();
 
-            // Write 201 response to stream
             outputStreamWriter.write(responseHeader, 0, responseHeader.length());
             outputStreamWriter.flush();
         }catch(IOException e){
@@ -95,9 +61,9 @@ public class POSTHandler extends HTTPHandler{
             log.error(Arrays.toString(e.getStackTrace()));
         }
     }
-    private void writeBytesToFileStream(FileOutputStream file, StringBuilder buffer, int index, int length){
+    private void writeBytesToFileStream(FileOutputStream file, String bodyData, int index, int length){
         try {
-            file.write(buffer.toString().getBytes(), index, length);
+            file.write(bodyData.getBytes(), index, length);
         } catch (IOException e) {
             log.error(Arrays.toString(e.getStackTrace()));
         }
@@ -110,16 +76,6 @@ public class POSTHandler extends HTTPHandler{
     private void createDirectory(){
         if(!locationToUpload.mkdir()){
             throw new SecurityException();
-        }
-    }
-
-    private void writeToStream(FileOutputStream fileOutputStream, byte[] buffer, int offset, int length){
-        try{
-            fileOutputStream.write(buffer, offset, length);
-        }catch(FileNotFoundException e){
-            log.error("Cannot find file.");
-        } catch(IOException e){
-            log.error("cannot write to fileStream");
         }
     }
 }

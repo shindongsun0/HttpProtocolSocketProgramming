@@ -108,6 +108,4 @@ public class ResponseGenerator {
     public String getResponseHeader(){
         return responseHeader.toString();
     }
-
-
 }

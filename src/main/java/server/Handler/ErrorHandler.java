@@ -22,8 +22,13 @@ public class ErrorHandler extends HTTPHandler{
         handle();
     }
 
-    public ErrorHandler(Socket clientSocket, String requestHeader, File rootDirectory, StatusCodes serverError) {
-        super();
+    public ErrorHandler(Socket socket, String requestHeader, File root, StatusCodes statusCode) {
+        clientSocket = socket;
+        requestSHeader = requestHeader;
+        rootDirectory = root;
+        responseGenerator = new ResponseGenerator(statusCode);
+        generateResponseHeader();
+        handle();
     }
 
     @Override

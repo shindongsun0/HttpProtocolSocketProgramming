@@ -23,6 +23,7 @@ public class HttpClient {
     private static void makeRequestHeader(Socket socket, String path, String method, String body){
         try {
             outputStream = socket.getOutputStream();
+            PrintWriter printWriter = new PrintWriter(outputStream);
             if (method.equals("GET")) {
                 String request = "GET " + path + " HTTP/1.0\r\n"
                         + "Host: localhost\r\n"
@@ -33,14 +34,20 @@ public class HttpClient {
                 outputStream.flush();
             }
             else if(method.equals("POST")){
-                String request = "POST " + path + " HTTP/1.0\r\n"
-                        + "Host: localhost\r\n"
-                        + "Accept: */*\r\n"
-                        + "Accept-Language: en=us\r\n"
-                        + "Connection: close\r\n\r\n";
-                outputStream.write(request.getBytes());
-                outputStream.flush();
-                makeRequestBodyHeader(outputStream, body);
+//                String request = "POST " + path + " HTTP/1.0\r\n"
+//                        + "Host: localhost\r\n"
+//                        + "Accept: */*\r\n"
+//                        + "Accept-Language: en=us\r\n"
+//                        + "Connection: close\r\n\r\n";
+                printWriter.println("POST " + path + " HTTP/1.0");
+                printWriter.println("Host: localhost");
+                printWriter.println("Accept: */*");
+                printWriter.println("Accept-Language: en-us");
+                printWriter.println("Connection: close");
+//                printWriter.println();
+                printWriter.println(body);
+                printWriter.println();
+                printWriter.flush();
             }
         }catch(IOException e){
             System.err.println("can't get stream connection");
@@ -76,12 +83,6 @@ public class HttpClient {
             outputStream.flush();
         }catch(IOException e){
             e.printStackTrace();
-        }finally{
-            try {
-                outputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
