@@ -5,8 +5,8 @@ public enum ContentType {
     HTML("TEXT/html"),
     JAVASCRIPT("TEXT/javascript"),
     JSON("Application/json"),
-    XML("Application/xml");
-
+    XML("Application/xml"),
+    TXT("TEXT/plain");
     String type;
 
     ContentType(String type) {

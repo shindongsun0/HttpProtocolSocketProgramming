@@ -28,20 +28,20 @@ public class ResponseGeneratorTest {
     @Test
     public void ResponseHeader_StatusCodes_OK() {
         ResponseGenerator responseGenerator_200 = new ResponseGenerator(StatusCodes.OK, "html", 176);
-        Assert.assertEquals(responseGenerator_200.getStatus(), "200 OK");
+        Assert.assertEquals(responseGenerator_200.getStatusCode(), "200 OK");
         Assert.assertEquals(responseGenerator_200.getContentType(), "TEXT/html");
     }
     @Test
     public void ResponseHeader_StatusCodes_NOTFOUND(){
         ResponseGenerator responseGenerator_404 = new ResponseGenerator(StatusCodes.NOT_FOUND, "GET");
-        Assert.assertEquals(responseGenerator_404.getStatus(), "404 Not Found");
+        Assert.assertEquals(responseGenerator_404.getStatusCode(), "404 Not Found");
         assertNull(responseGenerator_404.getContentType());
     }
 
     @Test
     public void ResponseHeader_StatusCodes_500(){
         ResponseGenerator responseGenerator_500 = new ResponseGenerator(StatusCodes.SERVER_ERROR, "GET");
-        Assert.assertEquals(responseGenerator_500.getStatus(), "500 Internal Server Error");
+        Assert.assertEquals(responseGenerator_500.getStatusCode(), "500 Internal Server Error");
         assertNull(responseGenerator_500.getContentType());
     }
 
@@ -54,7 +54,7 @@ public class ResponseGeneratorTest {
     @Test
     public void ResponseHeader_StatusCodes_403(){
         ResponseGenerator responseGenerator_403 = new ResponseGenerator(StatusCodes.FORBIDDEN, "GET");
-        Assert.assertEquals(responseGenerator_403.getStatus(), "403 Forbidden");
+        Assert.assertEquals(responseGenerator_403.getStatusCode(), "403 Forbidden");
         assertNull(responseGenerator_403.getContentType());
     }
 

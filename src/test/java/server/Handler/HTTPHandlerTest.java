@@ -22,7 +22,7 @@ public class HTTPHandlerTest {
         return requestSHeader;
     }
 
-    private String getWrongrequestHeader(){
+    private String getWrongRequestHeader(){
         //header length < 2
         requestSHeader = "GET\r\n";
         return requestSHeader;
@@ -89,7 +89,7 @@ public class HTTPHandlerTest {
     }
     @Test(expected = IndexOutOfBoundsException.class)
     public void getPathFromHeader_실패_IndexOutOfBoundsException(){
-        requestSHeader = getWrongrequestHeader();
+        requestSHeader = getWrongRequestHeader();
         HTTPImpl failTest = new HTTPImpl(requestSHeader, rootDirectory);
         String result = failTest.getPathFromHeader();
     }

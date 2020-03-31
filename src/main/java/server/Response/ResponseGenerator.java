@@ -12,7 +12,7 @@ import java.util.Arrays;
 @Getter
 public class ResponseGenerator {
     private StringBuilder responseHeader;
-    private String status;
+    private String statusCode;
     private boolean includeLocation;
     private String location;
     private long contentLength;
@@ -24,7 +24,7 @@ public class ResponseGenerator {
     String format_time = format.format(System.currentTimeMillis());
 
     public ResponseGenerator(StatusCodes statusCodes, String type, long fileLength) throws IllegalArgumentException{
-        this.status = statusCodes.get_Status();
+        this.statusCode = statusCodes.getStatus();
         this.responseHeader = new StringBuilder();
         this.includeLocation = false;
         this.contentLength = fileLength;
@@ -32,14 +32,8 @@ public class ResponseGenerator {
         generateResponseHeader();
     }
 
-    public ResponseGenerator(StatusCodes statusCodes, String requestType) throws IllegalArgumentException {
-        this.status = statusCodes.get_Status();
-        this.responseHeader = new StringBuilder();
-        generate404ResponseHeader(requestType);
-    }
-
     public ResponseGenerator(StatusCodes statusCodes) {
-        this.status = statusCodes.get_Status();
+        this.statusCode = statusCodes.getStatus();
         this.contentType = null;
         this.includeLocation = false;
         this.location = null;
@@ -50,7 +44,7 @@ public class ResponseGenerator {
 
     //http created
     public ResponseGenerator(StatusCodes statusCodes, boolean includeLocation, String location, long fileLength) {
-        this.status = statusCodes.get_Status();
+        this.statusCode = statusCodes.getStatus();
         this.contentType = null;
         this.includeLocation = includeLocation;
         this.location = location;
@@ -67,7 +61,7 @@ public class ResponseGenerator {
     }
 
     private void generateResponseHeader() {
-        this.responseHeader.append("HTTP/1.1 ").append(status).append("\r\n")
+        this.responseHeader.append("HTTP/1.1 ").append(statusCode).append("\r\n")
                 .append("Server: ").append(getHostAddress()).append("\r\n")
                 .append("Connection: close\r\n")
                 .append("Cache-control: private\r\n")
@@ -92,17 +86,6 @@ public class ResponseGenerator {
             System.out.println(Arrays.asList(e.getStackTrace()));
             return e.toString();
         }
-    }
-
-    private void generate404ResponseHeader(String requestType){
-        this.responseHeader.append("HTTP/1.1 ")
-                .append(status).append("\r\n")
-                .append("Server: ").append(getHostAddress()).append("\r\n")
-                .append("Request Method: ").append(requestType).append("\r\n")
-                .append("Date: ").append(format_time).append("\r\n")
-                .append("Connection: close\r\n")
-                .append("Cache-control: private\r\n")
-                .append("\r\n");
     }
 
     public String getResponseHeader(){

@@ -7,9 +7,8 @@ import server.Response.StatusCodes;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.security.AccessControlException;
 import java.util.Arrays;
-
-
 
 @Slf4j
 public class ClientHandler implements Runnable {
@@ -53,8 +52,8 @@ public class ClientHandler implements Runnable {
             try {
                 line = request.readLine();
             } catch (IOException e) {
-                System.out.println(e.toString());
-                System.out.println(Arrays.asList(e.getStackTrace()));
+                log.error("can't read stream {}", e.toString());
+                log.error(Arrays.toString(e.getStackTrace()));
             }
             builder.append(line).append("\r\n");
         } while (!line.equals(""));
@@ -82,25 +81,34 @@ public class ClientHandler implements Runnable {
             String requestType = getHTTPMethod();
             HTTPHandler handler = null;
             try {
-                if (getPathFromHeader().contentEquals("/oldpage.html")) {
-                    handler = new RedirectHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.FOUND, "newpage");
-                } else if (requestType.contentEquals("GET")) {
+                if (requestType.contentEquals("GET")) {
                     handler = new GETHandler(clientSocket, requestHeader, rootDirectory);
                 } else if (requestType.contentEquals("POST")) {
                     handler = new POSTHandler(clientSocket, requestHeader, rootDirectory);
                 }
             } catch (FileNotFoundException e) {
-                //404 FILE NOT FOUND
-                handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, requestType);
+                //404
+                handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.NOT_FOUND);
             } catch (IllegalArgumentException | SecurityException e) {
-                //500 INTERNAL SERVER ERROR
+                //500
                 handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.SERVER_ERROR);
-            } finally {
+            }
+
+            try {
+                if(handler != null)
+                    handler.handle();
+            } catch(AccessControlException e) {
+                // 403
+                handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.FORBIDDEN);
+                handler.handle();
+            }
+            finally {
                 try {
                     clientSocket.close();
                     System.out.println("Client Socket close!");
                 } catch (IOException e) {
-                    System.out.println("Cannot close client socket");
+                    log.error("can't close Client Socket {}", e.toString());
+                    log.error(Arrays.toString(e.getStackTrace()));
                 }
             }
         }
@@ -111,13 +119,6 @@ public class ClientHandler implements Runnable {
         if(splitHeader.length == 0)
             throw new IndexOutOfBoundsException();
         return splitHeader[0];
-    }
-
-    private String getPathFromHeader(){
-        String[] splitHeader = requestHeader.split("\\s");
-        if(splitHeader.length < 1)
-            throw new IndexOutOfBoundsException();
-        return splitHeader[1];
     }
 
     private boolean isHTTPRequest() {

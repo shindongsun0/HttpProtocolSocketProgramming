@@ -1,5 +1,6 @@
 package server.Handler;
 
+import lombok.extern.slf4j.Slf4j;
 import server.Response.ResponseGenerator;
 
 import java.io.*;
@@ -8,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
+@Slf4j
 public abstract class HTTPHandler {
     protected File rootDirectory;
     protected String requestSHeader;
@@ -29,7 +31,7 @@ public abstract class HTTPHandler {
     }
 
     protected String getFileType(String input){
-        String[] splitString = input.split("\\."); //.으로 split함
+        String[] splitString = input.split("\\.");
         return splitString[splitString.length - 1];
     }
 
@@ -73,14 +75,17 @@ public abstract class HTTPHandler {
                 }
             }
         } catch (FileNotFoundException e) {
-            System.err.println("Can't find file");
+            log.error("can't find file {}", e.toString());
+            log.error(Arrays.toString(e.getStackTrace()));
         } catch(IOException e){
-            System.err.println("Can't write to stream");
+            log.error("can't read file {}", e.toString());
+            log.error(Arrays.toString(e.getStackTrace()));
         }finally{
             try{
                 fileInputStream.close();
             }catch(IOException e){
-                System.err.println("Can't close file reader");
+                log.error("can't close stream {}", e.toString());
+                log.error(Arrays.toString(e.getStackTrace()));
             }
         }
 

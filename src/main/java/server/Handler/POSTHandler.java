@@ -28,18 +28,12 @@ public class POSTHandler extends HTTPHandler{
         if(!checkIfFolderExists()){
             createDirectory();
         }
-        responseGenerator = new ResponseGenerator(StatusCodes.CONTINUE);
-        generateResponseHeader();
-        handle();
     }
 
     @Override
     public void handle() {
         try {
-            InputStream inputStream = clientSocket.getInputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(clientSocket.getOutputStream());
-
-            outputStreamWriter.write(responseHeader, 0, responseHeader.length());
             postContentFile = new File(rootDirectory.getAbsolutePath() + "/" + requestedFile);
 
             try {
@@ -48,7 +42,7 @@ public class POSTHandler extends HTTPHandler{
                 int readBytes = getData[getData.length - 1].length();
                 writeBytesToFileStream(fileStream, getData[getData.length - 1], 0, readBytes);
             } catch (FileNotFoundException e) {
-                log.error("There was a problem with creating the file.");
+                log.error("There was a problem with creating the file. {}", e.toString());
             }
 
             responseGenerator = new ResponseGenerator(StatusCodes.CREATED, true, rootDirectory.getAbsolutePath() + "/" + requestedFile, postContentFile.length());
@@ -61,6 +55,7 @@ public class POSTHandler extends HTTPHandler{
             log.error(Arrays.toString(e.getStackTrace()));
         }
     }
+
     private void writeBytesToFileStream(FileOutputStream file, String bodyData, int index, int length){
         try {
             file.write(bodyData.getBytes(), index, length);

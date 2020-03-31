@@ -21,7 +21,6 @@ public class GETHandler extends HTTPHandler{
         requestedFile = getFile(getPathFromHeader());
         responseGenerator = new ResponseGenerator(StatusCodes.OK, getFileType(requestedFile.getAbsolutePath()), requestedFile.length());
         generateResponseHeader();
-        handle();
     }
 
     @Override
