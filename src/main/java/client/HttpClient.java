@@ -17,7 +17,7 @@ public class HttpClient {
         return socket;
     }
 
-    private static void makeRequestHeader(Socket socket, String path, String method, String body){
+    private static void makeRequestHeader(Socket socket, String path, String method, String body) {
         try {
             outputStream = socket.getOutputStream();
             PrintWriter printWriter = new PrintWriter(outputStream);
@@ -29,8 +29,7 @@ public class HttpClient {
                         + "Connection: close\r\n\r\n";
                 outputStream.write(request.getBytes());
                 outputStream.flush();
-            }
-            else if(method.equals("POST")){
+            } else if (method.equals("POST")) {
                 printWriter.println("POST " + path + " HTTP/1.0");
                 printWriter.println("Host: localhost");
                 printWriter.println("Accept: */*");
@@ -42,44 +41,49 @@ public class HttpClient {
 
                 printWriter.flush();
             }
-        }catch(IOException e){
+        } catch (IOException e) {
             log.error("can't open stream {}", e.toString());
             log.error(Arrays.toString(e.getStackTrace()));
         }
     }
-    private static void readResponseHeader(Socket socket){
+
+    private static void readResponseHeader(Socket socket) {
         InputStream inputStream = null;
-        try{
+        try {
             inputStream = socket.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
             String number;
-            while ((number = bufferedReader.readLine()) != null){
+            while ((number = bufferedReader.readLine()) != null) {
                 System.out.println(number);
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             System.err.println("cannot get inputstream connection");
-        } finally{
+        } finally {
             try {
                 outputStream.close();
-                inputStream.close();
+                if (inputStream != null) {
+                    inputStream.close();
+                }
             } catch (IOException e) {
                 log.error("can't close stream {}", e.toString());
                 log.error(Arrays.toString(e.getStackTrace()));
             }
         }
     }
-    private static void closeSocket(Socket socket){
+
+    private static void closeSocket(Socket socket) {
         try {
             socket.close();
-        } catch(IOException e){
+        } catch (IOException e) {
             log.error("cannot close socket {}", e.toString());
         }
     }
-    public static void main(String[] args){
+
+    public static void main(String[] args) {
         Socket socket = null;
         try {
-            socket = connectSocket("localhost", 10005,10000);
+            socket = connectSocket("localhost", 10005, 10000);
         } catch (IOException e) {
             log.error("can't connect to Socket {}", e.toString());
             log.error(Arrays.toString(e.getStackTrace()));

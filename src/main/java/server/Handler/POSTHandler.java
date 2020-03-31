@@ -6,14 +6,10 @@ import server.Response.StatusCodes;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 
 @Slf4j
-public class POSTHandler extends HTTPHandler{
+public class POSTHandler extends HTTPHandler {
     private File postContentFile;
     private File locationToUpload;
 
@@ -25,8 +21,8 @@ public class POSTHandler extends HTTPHandler{
         locationToUpload = new File(rootDirectory.getAbsolutePath() + "/" + requestedFile);
         postContentFile = null;
 
-        if(!checkIfFolderExists()){
-            createDirectory();
+        if (!checkIfFolderExists()) {
+            createDirectoryIfAbsent();
         }
     }
 
@@ -36,7 +32,7 @@ public class POSTHandler extends HTTPHandler{
         sendResponseToClient();
     }
 
-    private void updatePostData(){
+    private void updatePostData() {
         postContentFile = new File(rootDirectory.getAbsolutePath() + "/" + requestedFile);
         try {
             FileOutputStream fileStream = new FileOutputStream(postContentFile, true);
@@ -48,20 +44,20 @@ public class POSTHandler extends HTTPHandler{
         }
     }
 
-    private void sendResponseToClient(){
+    private void sendResponseToClient() {
         try {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(clientSocket.getOutputStream());
             responseGenerator = new ResponseGenerator(StatusCodes.CREATED, true, rootDirectory.getAbsolutePath() + "/" + requestedFile, postContentFile.length());
-            generateResponseHeader();
+            this.setResponseHandler(responseGenerator.getResponseHeader());
             outputStreamWriter.write(responseHeader, 0, responseHeader.length());
             outputStreamWriter.flush();
-        } catch(IOException e){
+        } catch (IOException e) {
             log.error("can't write to stream : {}", e.toString());
             log.error(Arrays.toString(e.getStackTrace()));
         }
     }
 
-    private void writeBytesToFileStream(FileOutputStream file, String bodyData, int index, int length){
+    private void writeBytesToFileStream(FileOutputStream file, String bodyData, int index, int length) {
         try {
             file.write(bodyData.getBytes(), index, length);
         } catch (IOException e) {
@@ -69,13 +65,15 @@ public class POSTHandler extends HTTPHandler{
         }
     }
 
-    private boolean checkIfFolderExists(){
+    private boolean checkIfFolderExists() {
         return locationToUpload.exists();
     }
 
-    private void createDirectory(){
-        if(!locationToUpload.mkdir()){
+    private void createDirectoryIfAbsent() {
+        if (!locationToUpload.mkdir()) {
             throw new SecurityException();
         }
+
+        // TODO 만드는 코드
     }
 }

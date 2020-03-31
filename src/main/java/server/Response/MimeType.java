@@ -13,7 +13,8 @@ public enum MimeType {
     MimeType(String type) {
         this.type = type;
     }
-    public String getType(){
+
+    public String getType() {
         return this.type;
     }
 }

@@ -15,7 +15,7 @@ public enum StatusCodes {
     private String status;
 
 
-    StatusCodes(int code, String status){
+    StatusCodes(int code, String status) {
         this.code = code;
         this.status = status;
     }

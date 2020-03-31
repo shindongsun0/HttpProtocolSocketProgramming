@@ -4,13 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.text.SimpleDateFormat;
 
 import static org.junit.Assert.*;
 
 @Slf4j
 public class ResponseGeneratorTest {
-    SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss");
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     String format_time = format.format(System.currentTimeMillis());
     ResponseGenerator responseGenerator;
 
@@ -31,45 +32,43 @@ public class ResponseGeneratorTest {
         Assert.assertEquals(responseGenerator_200.getStatusCode(), "200 OK");
         Assert.assertEquals(responseGenerator_200.getContentType(), "TEXT/html");
     }
+
     @Test
-    public void ResponseHeader_StatusCodes_NOTFOUND(){
-        ResponseGenerator responseGenerator_404 = new ResponseGenerator(StatusCodes.NOT_FOUND, "GET");
+    public void ResponseHeader_StatusCodes_NOTFOUND() {
+        ResponseGenerator responseGenerator_404 = new ResponseGenerator(StatusCodes.NOT_FOUND, "GET", 176);
         Assert.assertEquals(responseGenerator_404.getStatusCode(), "404 Not Found");
         assertNull(responseGenerator_404.getContentType());
     }
 
     @Test
-    public void ResponseHeader_StatusCodes_500(){
-        ResponseGenerator responseGenerator_500 = new ResponseGenerator(StatusCodes.SERVER_ERROR, "GET");
+    public void ResponseHeader_StatusCodes_500() {
+        ResponseGenerator responseGenerator_500 = new ResponseGenerator(StatusCodes.SERVER_ERROR, "xml", 176);
         Assert.assertEquals(responseGenerator_500.getStatusCode(), "500 Internal Server Error");
         assertNull(responseGenerator_500.getContentType());
     }
 
     @Test
-    public void ResponseHeader_StatusCodes_302(){
+    public void ResponseHeader_StatusCodes_302() {
         ResponseGenerator responseGenerator_302 = new ResponseGenerator(StatusCodes.FOUND, "html", 176);
 
     }
 
     @Test
-    public void ResponseHeader_StatusCodes_403(){
-        ResponseGenerator responseGenerator_403 = new ResponseGenerator(StatusCodes.FORBIDDEN, "GET");
+    public void ResponseHeader_StatusCodes_403() {
+        ResponseGenerator responseGenerator_403 = new ResponseGenerator(StatusCodes.FORBIDDEN, "html", 176);
         Assert.assertEquals(responseGenerator_403.getStatusCode(), "403 Forbidden");
         assertNull(responseGenerator_403.getContentType());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NO_ContentType_Matched_In_isContentType(){
-         responseGenerator = new ResponseGenerator(StatusCodes.OK, "VND", 176);
+    public void NO_ContentType_Matched_In_isContentType() {
+        responseGenerator = new ResponseGenerator(StatusCodes.OK, "VND", 176);
     }
 
     @Test
-    public void ContentType_Matched_In_isContentType(){
+    public void ContentType_Matched_In_isContentType() {
         responseGenerator = new ResponseGenerator(StatusCodes.OK, "HTML", 176);
-        MimeType mimeType = responseGenerator.isContentType("HTML");
+        MimeType mimeType = responseGenerator.isMimeType("HTML");
         Assert.assertEquals(mimeType, MimeType.HTML);
     }
-
-
-
 }

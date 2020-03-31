@@ -2,6 +2,7 @@ package server.Handler;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 
@@ -13,7 +14,7 @@ public class HTTPHandlerTest {
 
     public String requestSHeader;
 
-    private String getRequestSHeader(String fileName){
+    private String getRequestSHeader(String fileName) {
         requestSHeader = "GET " + fileName + " HTTP/1.0\r\n" +
                 "Host: localhost\r\n" +
                 "Accept: */*\r\n" +
@@ -22,15 +23,15 @@ public class HTTPHandlerTest {
         return requestSHeader;
     }
 
-    private String getWrongRequestHeader(){
+    private String getWrongRequestHeader() {
         //header length < 2
         requestSHeader = "GET\r\n";
         return requestSHeader;
     }
 
     @Before
-    public void setUp(){
-        rootDirectory =  new File(System.getProperty("user.dir"));
+    public void setUp() {
+        rootDirectory = new File(System.getProperty("user.dir"));
     }
 
     @Test(expected = FileNotFoundException.class)
@@ -39,9 +40,10 @@ public class HTTPHandlerTest {
         HTTPImpl failTest = new HTTPImpl(requestSHeader, rootDirectory);
         File returnFile = failTest.getFile(fileName);
     }
+
     @Test
     public void valid_filePath_returnFile_In_getFile() throws FileNotFoundException {
-        String fileName = "mainPage/index.html";
+        String fileName = "mainPage/hello.html";
         HTTPImpl failTest = new HTTPImpl(requestSHeader, rootDirectory);
         File returnFile = failTest.getFile(fileName);
     }
@@ -58,6 +60,7 @@ public class HTTPHandlerTest {
 
         assertEquals("html", result);
     }
+
     @Test
     public void invalid_FileType_실패_In_getFileType() {
         requestSHeader = getRequestSHeader("mainPage/index");
@@ -72,7 +75,6 @@ public class HTTPHandlerTest {
     }
 
 
-
     @Test
     public void getPathFromHeader_성공_return_path() {
         requestSHeader = getRequestSHeader("index.html");
@@ -80,25 +82,28 @@ public class HTTPHandlerTest {
         String result = successTest.validatePath();
         assertEquals("index.html", result);
     }
+
     @Test
-    public void getPathFromHeader_성공_if_empty_path(){
+    public void getPathFromHeader_성공_if_empty_path() {
         requestSHeader = getRequestSHeader("");
         HTTPImpl successTest = new HTTPImpl(requestSHeader, rootDirectory);
         String result = successTest.validatePath();
         assertEquals("mainPage/index.html", result);
     }
+
     @Test(expected = IndexOutOfBoundsException.class)
-    public void getPathFromHeader_실패_IndexOutOfBoundsException(){
+    public void getPathFromHeader_실패_IndexOutOfBoundsException() {
         requestSHeader = getWrongRequestHeader();
         HTTPImpl failTest = new HTTPImpl(requestSHeader, rootDirectory);
         String result = failTest.validatePath();
     }
 
-    private class HTTPImpl extends HTTPHandler{
-        public HTTPImpl(String header, File file){
+    private class HTTPImpl extends HTTPHandler {
+        public HTTPImpl(String header, File file) {
             this.requestSHeader = header;
             this.rootDirectory = file;
         }
+
         @Override
         public void handle() {
 
