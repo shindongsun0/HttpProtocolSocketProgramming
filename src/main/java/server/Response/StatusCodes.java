@@ -14,7 +14,6 @@ public enum StatusCodes {
     private int code;
     private String status;
 
-
     StatusCodes(int code, String status) {
         this.code = code;
         this.status = status;

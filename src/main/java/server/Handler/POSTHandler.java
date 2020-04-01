@@ -17,12 +17,12 @@ public class POSTHandler extends HTTPHandler {
         clientSocket = socket;
         requestSHeader = requestHeader;
         rootDirectory = root;
-        requestedFile = getFile(validatePath());
+        requestedFile = getFile(validatePath(getPathFromHeader(requestSHeader)));
         locationToUpload = new File(rootDirectory.getAbsolutePath() + "/" + requestedFile);
         postContentFile = null;
 
-        if (!checkIfFolderExists()) {
-            createDirectoryIfAbsent();
+        if (!checkIfFolderExists(locationToUpload)) {
+            createDirectoryIfAbsent(locationToUpload);
         }
     }
 
@@ -30,7 +30,14 @@ public class POSTHandler extends HTTPHandler {
     public void handle() {
         File postContentFile = new File(rootDirectory.getAbsolutePath() + "/" + requestedFile);
         updatePostData(postContentFile);
-        sendResponseToClient();
+
+        setupResponseHeader(StatusCodes.CREATED);
+        sendResponseToClient(this.responseHeader);
+    }
+
+    private void setupResponseHeader(StatusCodes statusCode) {
+        responseGenerator = new ResponseGenerator(statusCode, true, rootDirectory.getAbsolutePath() + "/" + requestedFile, postContentFile.length());
+        this.setResponseHandler(responseGenerator.getResponseHeader());
     }
 
     private void updatePostData(File postContentFile) {
@@ -44,11 +51,9 @@ public class POSTHandler extends HTTPHandler {
         }
     }
 
-    private void sendResponseToClient() {
+    private void sendResponseToClient(String responseHeader) {
         try {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(clientSocket.getOutputStream());
-            responseGenerator = new ResponseGenerator(StatusCodes.CREATED, true, rootDirectory.getAbsolutePath() + "/" + requestedFile, postContentFile.length());
-            this.setResponseHandler(responseGenerator.getResponseHeader());
             outputStreamWriter.write(responseHeader, 0, responseHeader.length());
             outputStreamWriter.flush();
         } catch (IOException e) {
@@ -65,12 +70,12 @@ public class POSTHandler extends HTTPHandler {
         }
     }
 
-    private boolean checkIfFolderExists() {
-        return locationToUpload.exists();
+    private boolean checkIfFolderExists(File uploadFilePath) {
+        return uploadFilePath.exists();
     }
 
-    private void createDirectoryIfAbsent() {
-        if (!locationToUpload.mkdir()) {
+    private void createDirectoryIfAbsent(File uploadFilePath) {
+        if (!uploadFilePath.mkdir()) {
             throw new SecurityException();
         }
     }

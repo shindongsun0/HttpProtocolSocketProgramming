@@ -18,6 +18,7 @@ public class ClientHandler implements Runnable {
     private Socket clientSocket;
     private File rootDirectory;
     private String requestHeader;
+    private BufferedReader reader;
 
     public ClientHandler(Socket clientSocket, File root) {
         this.rootDirectory = root;
@@ -27,7 +28,9 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         printNewThread(clientSocket);
-        mappingHandler();
+        this.requestHeader = readResponseHeader();
+        printResponseHeader(requestHeader);
+        mappingHandler(requestHeader);
     }
 
     private void printNewThread(Socket socket) {
@@ -37,23 +40,23 @@ public class ClientHandler implements Runnable {
     }
 
     private BufferedReader readSetUp() {
-        BufferedReader request = null;
         try {
             InputStream inputStream = clientSocket.getInputStream();
-            request = new BufferedReader(new InputStreamReader(inputStream));
+            this.reader = new BufferedReader(new InputStreamReader(inputStream));
         } catch (IOException e) {
-            System.out.println("Could not send data on port " + clientSocket.getPort());
+            log.error("Could not send data on port {}", clientSocket.getPort());
+            log.error(Arrays.toString(e.getStackTrace()));
         }
-        return request;
+        return this.reader;
     }
 
     public String readResponseHeader() {
-        BufferedReader request = readSetUp();
+        this.reader = readSetUp();
         StringBuilder builder = new StringBuilder();
         String line = null;
         do {
             try {
-                line = request.readLine();
+                line = this.reader.readLine();
             } catch (IOException e) {
                 log.error("can't read stream {}", e.toString());
                 log.error(Arrays.toString(e.getStackTrace()));
@@ -63,25 +66,27 @@ public class ClientHandler implements Runnable {
         return builder.toString();
     }
 
-    public boolean decideHTTPRequest() {
-        requestHeader = readResponseHeader();
+    private void printResponseHeader(String requestHeader) {
         System.out.println(requestHeader);
+    }
 
-        if (!isHTTPRequest()) {
+    public boolean isHTTPRequest() {
+        if (!includesHTTP(requestHeader)) {
             System.out.println("NOT a HTTP request");
             try {
                 clientSocket.close();
                 return false;
             } catch (IOException e) {
                 log.error("Could not close Socket {}", clientSocket);
+                log.error(Arrays.toString(e.getStackTrace()));
             }
         }
         return true;
     }
 
-    public void mappingHandler() {
-        if (decideHTTPRequest()) {
-            String requestType = getHTTPMethod();
+    public void mappingHandler(String requestHeader) {
+        if (isHTTPRequest()) {
+            String requestType = getHTTPMethod(requestHeader);
             HTTPHandler handler = null;
             try {
                 if (requestType.contentEquals("GET")) {
@@ -116,14 +121,14 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private String getHTTPMethod() {
+    private String getHTTPMethod(String requestHeader) {
         String[] splitHeader = requestHeader.split("\\s");
         if (splitHeader.length == 0)
             throw new IndexOutOfBoundsException();
         return splitHeader[0];
     }
 
-    private boolean isHTTPRequest() {
+    private boolean includesHTTP(String requestHeader) {
         String[] splitHeader = requestHeader.split("\\s");
         if (splitHeader.length < 3) {
             return false;

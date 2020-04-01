@@ -17,7 +17,6 @@ public class ErrorHandler extends HTTPHandler {
         requestSHeader = requestHeader;
         rootDirectory = root;
         responseGenerator = new ResponseGenerator(statusCodes);
-//        setResponseHandler(); //여기수정
         this.setResponseHandler(responseGenerator.getResponseHeader());
     }
 

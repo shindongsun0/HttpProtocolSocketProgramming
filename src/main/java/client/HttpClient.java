@@ -88,8 +88,10 @@ public class HttpClient {
             log.error("can't connect to Socket {}", e.toString());
             log.error(Arrays.toString(e.getStackTrace()));
         }
-        makeRequestHeader(socket, "mainPage/hello.txt", "GET", null);
-//        makeRequestHeader(socket, "mainPage/hello.txt", "POST", "hihi");
+//        makeRequestHeader(socket, "mainPage/hello.txt", "GET", null);
+        if (socket != null) {
+            makeRequestHeader(socket, "mainPage/hero.json", "GET", null);
+        }
         readResponseHeader(socket);
         closeSocket(socket);
     }

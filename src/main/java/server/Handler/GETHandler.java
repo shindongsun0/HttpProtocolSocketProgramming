@@ -18,7 +18,7 @@ public class GETHandler extends HTTPHandler {
         rootDirectory = root;
         requestSHeader = requestHeader;
         clientSocket = socket;
-        requestedFile = getFile(validatePath());
+        requestedFile = getFile(validatePath(getPathFromHeader(requestSHeader)));
         responseGenerator = new ResponseGenerator(StatusCodes.OK, getFileType(requestedFile.getAbsolutePath()), requestedFile.length());
         this.setResponseHandler(responseGenerator.getResponseHeader());
     }

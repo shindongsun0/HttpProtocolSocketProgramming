@@ -17,7 +17,7 @@ public abstract class HTTPHandler {
     protected Socket clientSocket;
     protected File requestedFile;
     protected ResponseGenerator responseGenerator;
-    protected String requestType;
+
 
     public abstract void handle();
 
@@ -35,18 +35,16 @@ public abstract class HTTPHandler {
         return splitString[splitString.length - 1];
     }
 
-    protected String getPathFromHeader() {
-        String path;
-        String[] splitHeader = requestSHeader.split("\\s");
+    protected String getPathFromHeader(String requestHeader) {
+        String[] splitHeader = requestHeader.split("\\s");
         if (splitHeader.length < 2)
             throw new IndexOutOfBoundsException();
-        path = splitHeader[1];
-        return path;
+        return splitHeader[1];
     }
 
-    protected String validatePath() throws IndexOutOfBoundsException {
+    protected String validatePath(String path) throws IndexOutOfBoundsException {
         String rootPath = rootDirectory.getAbsolutePath();
-        String path = getPathFromHeader();
+//        String path = getPathFromHeader();
         if (path.length() == 0) {
             return path + "mainPage/hello.html";
         }
@@ -85,7 +83,9 @@ public abstract class HTTPHandler {
             log.error(Arrays.toString(e.getStackTrace()));
         } finally {
             try {
-                fileInputStream.close();
+                if (fileInputStream != null) {
+                    fileInputStream.close();
+                }
             } catch (IOException e) {
                 log.error("can't close stream {}", e.toString());
                 log.error(Arrays.toString(e.getStackTrace()));
