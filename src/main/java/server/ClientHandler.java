@@ -100,6 +100,8 @@ public class ClientHandler implements Runnable {
             } catch (IllegalArgumentException | SecurityException e) {
                 //500
                 handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.SERVER_ERROR);
+            } catch (IndexOutOfBoundsException e) {
+                handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.BAD_REQUEST);
             }
 
             try {

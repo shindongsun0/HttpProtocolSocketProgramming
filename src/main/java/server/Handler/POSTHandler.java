@@ -1,6 +1,8 @@
 package server.Handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import server.Response.ResponseGenerator;
 import server.Response.StatusCodes;
 
@@ -31,9 +33,15 @@ public class POSTHandler extends HTTPHandler {
     public void handle() {
         String splitFile[] = requestedFile.toString().split("\\.");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-        String fileName = splitFile[0] + "_" + dateFormat.format(new Date()) + "." + splitFile[1];
+        String fileName;
+        try {
+            fileName = splitFile[0] + "_" + dateFormat.format(new Date()) + "." + splitFile[1];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+
         postContentFile = new File(locationToUpload + "/" + fileName);
-        updatePostData(postContentFile);
+        updatePostData(postContentFile, splitFile[1]);
 
         setupResponseHeader(StatusCodes.CREATED);
         sendResponseToClient(this.responseHeader);
@@ -44,11 +52,31 @@ public class POSTHandler extends HTTPHandler {
         this.setResponseHandler(responseGenerator.getResponseHeader());
     }
 
-    private void updatePostData(File postContentFile) {
+    private void updatePostData(File postContentFile, String fileType) {
         try {
             FileOutputStream fileStream = new FileOutputStream(postContentFile, true);
             String[] getData = requestHeader.split("\r\n");
             int startOfBody = findStartOfBody(getData);
+            if (fileType.equals("json")) {
+//                String[] jsonData = Arrays.copyOfRange(getData, startOfBody, getData.length);
+//                for (String i : jsonData) {
+//                    System.out.println(i);
+//                }
+//                JSONObject jsonObject = new JSONObject(Arrays.toString(jsonData));
+//                try {
+//                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileStream);
+//                    objectOutputStream.writeObject(jsonObject);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+                String jsonData = requestHeader.substring(startOfBody);
+                JSONParser parser = new JSONParser();
+                try {
+                    Object obj = parser.parse(jsonData);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
             for (int i = startOfBody; i < getData.length; i++) {
                 writeBytesToFileStream(fileStream, getData[i], 0, getData[i].length());
             }
