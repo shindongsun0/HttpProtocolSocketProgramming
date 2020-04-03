@@ -14,7 +14,7 @@ import java.util.Arrays;
 public class ErrorHandler extends HTTPHandler {
     public ErrorHandler(Socket socket, String requestHeader, File root, StatusCodes statusCodes) {
         clientSocket = socket;
-        requestSHeader = requestHeader;
+        this.requestHeader = requestHeader;
         rootDirectory = root;
         responseGenerator = new ResponseGenerator(statusCodes);
         this.setResponseHandler(responseGenerator.getResponseHeader());

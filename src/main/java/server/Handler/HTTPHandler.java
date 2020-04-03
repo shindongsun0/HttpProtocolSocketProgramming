@@ -12,7 +12,7 @@ import java.util.Arrays;
 @Slf4j
 public abstract class HTTPHandler {
     protected File rootDirectory;
-    protected String requestSHeader;
+    protected String requestHeader;
     protected String responseHeader;
     protected Socket clientSocket;
     protected File requestedFile;

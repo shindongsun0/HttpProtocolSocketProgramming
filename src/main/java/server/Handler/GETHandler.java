@@ -16,9 +16,9 @@ import java.util.Arrays;
 public class GETHandler extends HTTPHandler {
     public GETHandler(Socket socket, String requestHeader, File root) throws FileNotFoundException {
         rootDirectory = root;
-        requestSHeader = requestHeader;
+        this.requestHeader = requestHeader;
         clientSocket = socket;
-        requestedFile = getFile(validatePath(getPathFromHeader(requestSHeader)));
+        requestedFile = getFile(validatePath(getPathFromHeader(this.requestHeader)));
         responseGenerator = new ResponseGenerator(StatusCodes.OK, getFileType(requestedFile.getAbsolutePath()), requestedFile.length());
         this.setResponseHandler(responseGenerator.getResponseHeader());
     }

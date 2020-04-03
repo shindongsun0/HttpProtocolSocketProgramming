@@ -17,10 +17,10 @@ public class POSTHandler extends HTTPHandler {
 
     public POSTHandler(Socket socket, String requestHeader, File root) throws FileNotFoundException {
         clientSocket = socket;
-        requestSHeader = requestHeader;
+        this.requestHeader = requestHeader;
         rootDirectory = root;
 //        requestedFile = getFile(validatePath(getPathFromHeader(requestSHeader)));
-        requestedFile = new File(validatePath(getPathFromHeader(requestSHeader)));
+        requestedFile = new File(validatePath(getPathFromHeader(this.requestHeader)));
         locationToUpload = new File(rootDirectory.getAbsolutePath() + "/mainPage/post");
         if (!checkIfFolderExists(locationToUpload)) {
             createDirectoryIfAbsent(locationToUpload);
@@ -47,7 +47,7 @@ public class POSTHandler extends HTTPHandler {
     private void updatePostData(File postContentFile) {
         try {
             FileOutputStream fileStream = new FileOutputStream(postContentFile, true);
-            String[] getData = requestSHeader.split("\r\n");
+            String[] getData = requestHeader.split("\r\n");
             int startOfBody = findStartOfBody(getData);
             for (int i = startOfBody; i < getData.length; i++) {
                 writeBytesToFileStream(fileStream, getData[i], 0, getData[i].length());

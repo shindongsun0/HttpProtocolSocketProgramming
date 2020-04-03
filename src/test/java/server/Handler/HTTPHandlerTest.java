@@ -111,7 +111,7 @@ public class HTTPHandlerTest {
 
     private class HTTPImpl extends HTTPHandler {
         public HTTPImpl(String header, File file) {
-            this.requestSHeader = header;
+            this.requestHeader = header;
             this.rootDirectory = file;
         }
 
