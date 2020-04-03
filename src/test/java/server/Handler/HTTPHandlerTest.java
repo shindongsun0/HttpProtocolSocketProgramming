@@ -117,7 +117,6 @@ public class HTTPHandlerTest {
 
         @Override
         public void handle() {
-
         }
     }
 }

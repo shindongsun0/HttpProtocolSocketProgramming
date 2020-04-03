@@ -44,7 +44,6 @@ public abstract class HTTPHandler {
 
     protected String validatePath(String path) throws IndexOutOfBoundsException {
         String rootPath = rootDirectory.getAbsolutePath();
-//        String path = getPathFromHeader();
         if (path.length() == 0) {
             return path + "mainPage/hello.html";
         }

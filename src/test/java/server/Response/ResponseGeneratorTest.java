@@ -20,14 +20,14 @@ public class ResponseGeneratorTest {
 
     @Test
     public void ResponseHeader_StatusCodes_404_NOTFOUND() {
-        ResponseGenerator responseGenerator_404 = new ResponseGenerator(StatusCodes.NOT_FOUND, "html", 176);
+        ResponseGenerator responseGenerator_404 = new ResponseGenerator(StatusCodes.NOT_FOUND);
         Assert.assertEquals(responseGenerator_404.getStatusCode(), "404 Not Found");
         assertNull(responseGenerator_404.getContentType());
     }
 
     @Test
     public void ResponseHeader_StatusCodes_500_SERVER_ERROR() {
-        ResponseGenerator responseGenerator_500 = new ResponseGenerator(StatusCodes.SERVER_ERROR, "xml", 176);
+        ResponseGenerator responseGenerator_500 = new ResponseGenerator(StatusCodes.SERVER_ERROR);
         Assert.assertEquals(responseGenerator_500.getStatusCode(), "500 Internal Server Error");
         assertNull(responseGenerator_500.getContentType());
     }

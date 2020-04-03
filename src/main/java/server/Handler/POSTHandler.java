@@ -6,7 +6,9 @@ import server.Response.StatusCodes;
 
 import java.io.*;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 
 @Slf4j
 public class POSTHandler extends HTTPHandler {
@@ -17,10 +19,9 @@ public class POSTHandler extends HTTPHandler {
         clientSocket = socket;
         requestSHeader = requestHeader;
         rootDirectory = root;
-        requestedFile = getFile(validatePath(getPathFromHeader(requestSHeader)));
-        locationToUpload = new File(rootDirectory.getAbsolutePath() + "/" + requestedFile);
-        postContentFile = null;
-
+//        requestedFile = getFile(validatePath(getPathFromHeader(requestSHeader)));
+        requestedFile = new File(validatePath(getPathFromHeader(requestSHeader)));
+        locationToUpload = new File(rootDirectory.getAbsolutePath() + "/mainPage/post");
         if (!checkIfFolderExists(locationToUpload)) {
             createDirectoryIfAbsent(locationToUpload);
         }
@@ -28,7 +29,10 @@ public class POSTHandler extends HTTPHandler {
 
     @Override
     public void handle() {
-        File postContentFile = new File(rootDirectory.getAbsolutePath() + "/" + requestedFile);
+        String splitFile[] = requestedFile.toString().split("\\.");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        String fileName = splitFile[0] + "_" + dateFormat.format(new Date()) + "." + splitFile[1];
+        postContentFile = new File(locationToUpload + "/" + fileName);
         updatePostData(postContentFile);
 
         setupResponseHeader(StatusCodes.CREATED);
@@ -36,7 +40,7 @@ public class POSTHandler extends HTTPHandler {
     }
 
     private void setupResponseHeader(StatusCodes statusCode) {
-        responseGenerator = new ResponseGenerator(statusCode, true, rootDirectory.getAbsolutePath() + "/" + requestedFile, postContentFile.length());
+        responseGenerator = new ResponseGenerator(statusCode, true, postContentFile.toString(), postContentFile.length());
         this.setResponseHandler(responseGenerator.getResponseHeader());
     }
 
@@ -44,11 +48,23 @@ public class POSTHandler extends HTTPHandler {
         try {
             FileOutputStream fileStream = new FileOutputStream(postContentFile, true);
             String[] getData = requestSHeader.split("\r\n");
-            int readBytes = getData[getData.length - 1].length();
-            writeBytesToFileStream(fileStream, getData[getData.length - 1], 0, readBytes);
+            int startOfBody = findStartOfBody(getData);
+            for (int i = startOfBody; i < getData.length; i++) {
+                writeBytesToFileStream(fileStream, getData[i], 0, getData[i].length());
+            }
         } catch (FileNotFoundException e) {
             log.error("There was a problem with creating the file. {}", e.toString());
         }
+    }
+
+    private int findStartOfBody(String[] getData) {
+        int endOfHeader = 0;
+        for (int i = getData.length - 1; i >= 0; i--) {
+            if (!getData[i].equals(" "))
+                endOfHeader = i;
+            else break;
+        }
+        return endOfHeader;
     }
 
     private void sendResponseToClient(String responseHeader) {

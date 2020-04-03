@@ -90,7 +90,18 @@ public class HttpClient {
         }
 //        makeRequestHeader(socket, "mainPage/hello.txt", "GET", null);
         if (socket != null) {
-            makeRequestHeader(socket, "mainPage/hero.json", "GET", null);
+//            String postBody = "{\n" +
+//                    "      \"name\": \"Madame Uppercut\",\n" +
+//                    "      \"age\": 39,\n" +
+//                    "      \"secretIdentity\": \"Jane Wilson\",\n" +
+//                    "      \"powers\": [\n" +
+//                    "        \"Million tonne punch\",\n" +
+//                    "        \"Damage resistance\",\n" +
+//                    "        \"Superhuman reflexes\"\n" +
+//                    "      ]\n" +
+//                    "    }";
+//            makeRequestHeader(socket, "hero.json", "POST", postBody);
+            makeRequestHeader(socket, "hero.", "POST", "{hi}");
         }
         readResponseHeader(socket);
         closeSocket(socket);
