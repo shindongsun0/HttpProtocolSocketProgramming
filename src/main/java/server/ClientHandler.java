@@ -70,7 +70,7 @@ public class ClientHandler implements Runnable {
         System.out.println(requestHeader);
     }
 
-    public boolean isHTTPRequest() {
+    public boolean isHTTPRequest(String requestHeader) {
         if (!includesHTTP(requestHeader)) {
             System.out.println("NOT a HTTP request");
             try {
@@ -85,7 +85,7 @@ public class ClientHandler implements Runnable {
     }
 
     public void mappingHandler(String requestHeader) {
-        if (isHTTPRequest()) {
+        if (isHTTPRequest(requestHeader)) {
             String requestType = getHTTPMethod(requestHeader);
             HTTPHandler handler = null;
             try {

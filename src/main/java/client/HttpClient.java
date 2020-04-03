@@ -22,7 +22,7 @@ public class HttpClient {
             outputStream = socket.getOutputStream();
             PrintWriter printWriter = new PrintWriter(outputStream);
             if (method.equals("GET")) {
-                String request = "GET " + path + " HTTP/1.0\r\n"
+                String request = "GET " + path + " HTTP/1.1\r\n"
                         + "Host: localhost\r\n"
                         + "Accept: */*\r\n"
                         + "Accept-Language: en-us\r\n"
@@ -30,7 +30,7 @@ public class HttpClient {
                 outputStream.write(request.getBytes());
                 outputStream.flush();
             } else if (method.equals("POST")) {
-                printWriter.println("POST " + path + " HTTP/1.0");
+                printWriter.println("POST " + path + " HTTP/1.1");
                 printWriter.println("Host: localhost");
                 printWriter.println("Accept: */*");
                 printWriter.println("Accept-Language: en-us");
