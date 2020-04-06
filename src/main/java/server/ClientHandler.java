@@ -97,19 +97,23 @@ public class ClientHandler implements Runnable {
             } catch (FileNotFoundException e) {
                 //404
                 handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.NOT_FOUND);
-            } catch (IllegalArgumentException | SecurityException e) {
+            } catch (SecurityException e) {
                 //500
                 handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.SERVER_ERROR);
-            } catch (IndexOutOfBoundsException e) {
+            } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+                //400
                 handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.BAD_REQUEST);
             }
-
             try {
                 if (handler != null)
                     handler.handle();
             } catch (AccessControlException e) {
                 // 403
                 handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.FORBIDDEN);
+                handler.handle();
+            } catch (IllegalArgumentException e) {
+                //400
+                handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.BAD_REQUEST);
                 handler.handle();
             } finally {
                 try {

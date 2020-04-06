@@ -1,6 +1,7 @@
 package server.Handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import server.Response.ResponseGenerator;
@@ -21,7 +22,6 @@ public class POSTHandler extends HTTPHandler {
         clientSocket = socket;
         this.requestHeader = requestHeader;
         rootDirectory = root;
-//        requestedFile = getFile(validatePath(getPathFromHeader(requestSHeader)));
         requestedFile = new File(validatePath(getPathFromHeader(this.requestHeader)));
         locationToUpload = new File(rootDirectory.getAbsolutePath() + "/mainPage/post");
         if (!checkIfFolderExists(locationToUpload)) {
@@ -31,7 +31,8 @@ public class POSTHandler extends HTTPHandler {
 
     @Override
     public void handle() {
-        String splitFile[] = requestedFile.toString().split("\\.");
+
+        String[] splitFile = requestedFile.toString().split("\\.");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String fileName;
         try {
@@ -39,10 +40,7 @@ public class POSTHandler extends HTTPHandler {
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new ArrayIndexOutOfBoundsException();
         }
-
-        postContentFile = new File(locationToUpload + "/" + fileName);
-        updatePostData(postContentFile, splitFile[1]);
-
+        updatePostData(fileName, splitFile[1]);
         setupResponseHeader(StatusCodes.CREATED);
         sendResponseToClient(this.responseHeader);
     }
@@ -52,31 +50,29 @@ public class POSTHandler extends HTTPHandler {
         this.setResponseHandler(responseGenerator.getResponseHeader());
     }
 
-    private void updatePostData(File postContentFile, String fileType) {
+    public void isJsonString(int startOfBody, String[] getData) {
         try {
-            FileOutputStream fileStream = new FileOutputStream(postContentFile, true);
+            StringBuffer jsonData = new StringBuffer();
+            for (int i = startOfBody; i < getData.length; i++) {
+                jsonData.append(getData[i]);
+            }
+            JSONParser parser = new JSONParser();
+            JSONObject obj = (JSONObject) parser.parse(String.valueOf(jsonData));
+        } catch (ParseException e) {
+            log.error("is not a json string! {}", e.toString());
+            throw new IllegalArgumentException(requestHeader + "'s body is not valid JSON string");
+        }
+    }
+
+    private void updatePostData(String fileName, String fileType) {
+        try {
             String[] getData = requestHeader.split("\r\n");
             int startOfBody = findStartOfBody(getData);
-            if (fileType.equals("json")) {
-//                String[] jsonData = Arrays.copyOfRange(getData, startOfBody, getData.length);
-//                for (String i : jsonData) {
-//                    System.out.println(i);
-//                }
-//                JSONObject jsonObject = new JSONObject(Arrays.toString(jsonData));
-//                try {
-//                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileStream);
-//                    objectOutputStream.writeObject(jsonObject);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-                String jsonData = requestHeader.substring(startOfBody);
-                JSONParser parser = new JSONParser();
-                try {
-                    Object obj = parser.parse(jsonData);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
+            if (fileType.equals("json"))
+                isJsonString(startOfBody, getData);
+
+            postContentFile = new File(locationToUpload + "/" + fileName);
+            FileOutputStream fileStream = new FileOutputStream(postContentFile, true);
             for (int i = startOfBody; i < getData.length; i++) {
                 writeBytesToFileStream(fileStream, getData[i], 0, getData[i].length());
             }
@@ -88,9 +84,9 @@ public class POSTHandler extends HTTPHandler {
     private int findStartOfBody(String[] getData) {
         int endOfHeader = 0;
         for (int i = getData.length - 1; i >= 0; i--) {
-            if (!getData[i].equals(" "))
+            if (!getData[i].equals(" ")) {
                 endOfHeader = i;
-            else break;
+            } else break;
         }
         return endOfHeader;
     }
