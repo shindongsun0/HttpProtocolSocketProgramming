@@ -31,7 +31,6 @@ public class POSTHandler extends HTTPHandler {
 
     @Override
     public void handle() {
-
         String[] splitFile = requestedFile.toString().split("\\.");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String fileName;
