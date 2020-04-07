@@ -3,7 +3,6 @@ package server.Response;
 import lombok.AccessLevel;
 import lombok.Getter;
 
-import javax.swing.text.AbstractDocument;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -12,100 +11,83 @@ import java.util.Arrays;
 @Getter
 public class ResponseGenerator {
     private StringBuilder responseHeader;
-    private String status;
+    private String statusCode;
     private boolean includeLocation;
     private String location;
     private long contentLength;
     private String contentType;
 
     @Getter(AccessLevel.NONE)
-    SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss");
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     @Getter(AccessLevel.NONE)
     String format_time = format.format(System.currentTimeMillis());
 
-    public ResponseGenerator(StatusCodes statusCodes, String type, long fileLength) throws IllegalArgumentException{
-        this.status = statusCodes.get_Status();
+    public ResponseGenerator(StatusCodes statusCodes, String type, long fileLength) throws IllegalArgumentException {
+        this.statusCode = statusCodes.getStatus();
         this.responseHeader = new StringBuilder();
         this.includeLocation = false;
         this.contentLength = fileLength;
-        this.contentType = isContentType(type.toUpperCase()).getType();
-        generateResponseHeader();
-    }
-
-    public ResponseGenerator(StatusCodes statusCodes, String requestType) throws IllegalArgumentException {
-        this.status = statusCodes.get_Status();
-        this.responseHeader = new StringBuilder();
-        generate404ResponseHeader(requestType);
+        this.contentType = isMimeType(type.toUpperCase()).getType();
+        buildResponseHeader();
     }
 
     public ResponseGenerator(StatusCodes statusCodes) {
-        this.status = statusCodes.get_Status();
+        this.statusCode = statusCodes.getStatus();
         this.contentType = null;
         this.includeLocation = false;
         this.location = null;
         this.responseHeader = new StringBuilder();
         this.contentLength = 0;
-        generateResponseHeader();
+        buildResponseHeader();
     }
 
     //http created
     public ResponseGenerator(StatusCodes statusCodes, boolean includeLocation, String location, long fileLength) {
-        this.status = statusCodes.get_Status();
+        this.statusCode = statusCodes.getStatus();
         this.contentType = null;
         this.includeLocation = includeLocation;
         this.location = location;
         this.responseHeader = new StringBuilder();
         this.contentLength = fileLength;
-        generateResponseHeader();
+        buildResponseHeader();
     }
 
-    protected ContentType isContentType(String type){
-        return Arrays.stream(ContentType.values())
-                .filter(contentType -> contentType.toString().equals(type))
+    protected MimeType isMimeType(String type) {
+        return Arrays.stream(MimeType.values())
+                .filter(mimeType -> mimeType.toString().equals(type))
                 .findAny()
-                .orElseThrow(IllegalArgumentException :: new);
+                .orElseThrow(IllegalArgumentException::new);
     }
 
-    private void generateResponseHeader() {
-        this.responseHeader.append("HTTP/1.1 ").append(status).append("\r\n")
+    private void buildResponseHeader() {
+        this.responseHeader.append("HTTP/1.1 ").append(statusCode).append("\r\n")
                 .append("Server: ").append(getHostAddress()).append("\r\n")
                 .append("Connection: close\r\n")
                 .append("Cache-control: private\r\n")
                 .append("Date: ").append(format_time).append("\r\n");
-        if(contentType != null){
+        if (contentType != null) {
             this.responseHeader.append("Content-Type: ").append(contentType).append("\r\n");
         }
-        if(contentLength != 0){
+        if (contentLength != 0) {
             this.responseHeader.append("Content-Length: ").append(contentLength).append("\r\n");
         }
-        if(includeLocation){
+        if (includeLocation) {
             this.responseHeader.append("Location: ").append(location).append("\r\n");
         }
         this.responseHeader.append("\r\n");
     }
 
-    private String getHostAddress(){
-        try{
+    private String getHostAddress() {
+        try {
             return InetAddress.getLocalHost().getHostAddress();
-        }catch(UnknownHostException e){
+        } catch (UnknownHostException e) {
             System.out.println(e.toString());
             System.out.println(Arrays.asList(e.getStackTrace()));
             return e.toString();
         }
     }
 
-    private void generate404ResponseHeader(String requestType){
-        this.responseHeader.append("HTTP/1.1 ")
-                .append(status).append("\r\n")
-                .append("Server: ").append(getHostAddress()).append("\r\n")
-                .append("Request Method: ").append(requestType).append("\r\n")
-                .append("Date: ").append(format_time).append("\r\n")
-                .append("Connection: close\r\n")
-                .append("Cache-control: private\r\n")
-                .append("\r\n");
-    }
-
-    public String getResponseHeader(){
+    public String getResponseHeader() {
         return responseHeader.toString();
     }
 }

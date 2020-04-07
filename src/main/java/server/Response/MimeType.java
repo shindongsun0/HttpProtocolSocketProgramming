@@ -1,18 +1,20 @@
 package server.Response;
 
-public enum ContentType {
+public enum MimeType {
     CSS("TEXT/css"),
     HTML("TEXT/html"),
     JAVASCRIPT("TEXT/javascript"),
     JSON("Application/json"),
-    XML("Application/xml");
+    XML("Application/xml"),
+    TXT("TEXT/plain");
 
     String type;
 
-    ContentType(String type) {
+    MimeType(String type) {
         this.type = type;
     }
-    public String getType(){
+
+    public String getType() {
         return this.type;
     }
 }

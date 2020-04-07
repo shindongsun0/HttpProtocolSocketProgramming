@@ -1,128 +1,142 @@
 package server;
 
 import lombok.extern.slf4j.Slf4j;
-import server.Handler.*;
+import server.Handler.ErrorHandler;
+import server.Handler.GETHandler;
+import server.Handler.HTTPHandler;
+import server.Handler.POSTHandler;
 import server.Response.StatusCodes;
 
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.security.AccessControlException;
 import java.util.Arrays;
-
-
 
 @Slf4j
 public class ClientHandler implements Runnable {
     private Socket clientSocket;
     private File rootDirectory;
     private String requestHeader;
+    private BufferedReader reader;
 
     public ClientHandler(Socket clientSocket, File root) {
-        this.rootDirectory= root;
+        this.rootDirectory = root;
         this.clientSocket = clientSocket;
     }
 
     @Override
     public void run() {
-        printNewThread();
-        mappingHandler();
+        printNewThread(clientSocket);
+        this.requestHeader = readResponseHeader();
+        printResponseHeader(requestHeader);
+        mappingHandler(requestHeader);
     }
 
-    private void printNewThread() {
-        InetAddress inetAddress = clientSocket.getInetAddress();
+    private void printNewThread(Socket socket) {
+        InetAddress inetAddress = socket.getInetAddress();
         System.out.println(inetAddress.getHostAddress() + " connected to Server");
         System.out.println(Thread.currentThread().getName() + " started!!");
     }
 
-    private BufferedReader readSetUp(){
-        BufferedReader request = null;
+    private BufferedReader readSetUp() {
         try {
             InputStream inputStream = clientSocket.getInputStream();
-            request = new BufferedReader(new InputStreamReader(inputStream));
-        }catch(IOException e){
-            System.out.println("Could not send data on port " + clientSocket.getPort());
+            this.reader = new BufferedReader(new InputStreamReader(inputStream));
+        } catch (IOException e) {
+            log.error("Could not send data on port {}", clientSocket.getPort());
+            log.error(Arrays.toString(e.getStackTrace()));
         }
-        return request;
+        return this.reader;
     }
 
     public String readResponseHeader() {
-        BufferedReader request = readSetUp();
+        this.reader = readSetUp();
         StringBuilder builder = new StringBuilder();
         String line = null;
         do {
             try {
-                line = request.readLine();
+                line = this.reader.readLine();
             } catch (IOException e) {
-                System.out.println(e.toString());
-                System.out.println(Arrays.asList(e.getStackTrace()));
+                log.error("can't read stream {}", e.toString());
+                log.error(Arrays.toString(e.getStackTrace()));
             }
             builder.append(line).append("\r\n");
-        } while (!line.equals(""));
+        } while (!"".equals(line));
         return builder.toString();
     }
 
-    public boolean decideHTTPRequest(){
-        requestHeader = readResponseHeader();
+    private void printResponseHeader(String requestHeader) {
         System.out.println(requestHeader);
+    }
 
-        if (!isHTTPRequest()) {
+    public boolean isHTTPRequest(String requestHeader) {
+        if (!includesHTTP(requestHeader)) {
             System.out.println("NOT a HTTP request");
             try {
                 clientSocket.close();
                 return false;
-            } catch(IOException e){
+            } catch (IOException e) {
                 log.error("Could not close Socket {}", clientSocket);
+                log.error(Arrays.toString(e.getStackTrace()));
             }
         }
         return true;
     }
 
-    public void mappingHandler(){
-        if(decideHTTPRequest()) {
-            String requestType = getHTTPMethod();
+    public void mappingHandler(String requestHeader) {
+        if (isHTTPRequest(requestHeader)) {
+            String requestType = getHTTPMethod(requestHeader);
             HTTPHandler handler = null;
             try {
-                if (getPathFromHeader().contentEquals("/oldpage.html")) {
-                    handler = new RedirectHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.FOUND, "newpage");
-                } else if (requestType.contentEquals("GET")) {
+                if (requestType.contentEquals("GET")) {
                     handler = new GETHandler(clientSocket, requestHeader, rootDirectory);
                 } else if (requestType.contentEquals("POST")) {
                     handler = new POSTHandler(clientSocket, requestHeader, rootDirectory);
                 }
             } catch (FileNotFoundException e) {
-                //404 FILE NOT FOUND
-                handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, requestType);
-            } catch (IllegalArgumentException | SecurityException e) {
-                //500 INTERNAL SERVER ERROR
+                //404
+                handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.NOT_FOUND);
+            } catch (SecurityException e) {
+                //500
                 handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.SERVER_ERROR);
+            } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+                //400
+                handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.BAD_REQUEST);
+            }
+            try {
+                if (handler != null)
+                    handler.handle();
+            } catch (AccessControlException e) {
+                // 403
+                handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.FORBIDDEN);
+                handler.handle();
+            } catch (IllegalArgumentException e) {
+                //400
+                handler = new ErrorHandler(clientSocket, requestHeader, rootDirectory, StatusCodes.BAD_REQUEST);
+                handler.handle();
             } finally {
                 try {
                     clientSocket.close();
                     System.out.println("Client Socket close!");
                 } catch (IOException e) {
-                    System.out.println("Cannot close client socket");
+                    log.error("can't close Client Socket {}", e.toString());
+                    log.error(Arrays.toString(e.getStackTrace()));
                 }
             }
         }
     }
 
-    private String getHTTPMethod() {
+    private String getHTTPMethod(String requestHeader) {
         String[] splitHeader = requestHeader.split("\\s");
-        if(splitHeader.length == 0)
+        if (splitHeader.length == 0)
             throw new IndexOutOfBoundsException();
         return splitHeader[0];
     }
 
-    private String getPathFromHeader(){
+    private boolean includesHTTP(String requestHeader) {
         String[] splitHeader = requestHeader.split("\\s");
-        if(splitHeader.length < 1)
-            throw new IndexOutOfBoundsException();
-        return splitHeader[1];
-    }
-
-    private boolean isHTTPRequest() {
-        String[] splitHeader = requestHeader.split("\\s");
-        if(splitHeader.length < 3){
+        if (splitHeader.length < 3) {
             return false;
         }
         return splitHeader[2].contains("HTTP");

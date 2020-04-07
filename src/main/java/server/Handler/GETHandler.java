@@ -13,23 +13,22 @@ import java.security.AccessControlException;
 import java.util.Arrays;
 
 @Slf4j
-public class GETHandler extends HTTPHandler{
+public class GETHandler extends HTTPHandler {
     public GETHandler(Socket socket, String requestHeader, File root) throws FileNotFoundException {
         rootDirectory = root;
-        requestSHeader = requestHeader;
+        this.requestHeader = requestHeader;
         clientSocket = socket;
-        requestedFile = getFile(getPathFromHeader());
+        requestedFile = getFile(validatePath(getPathFromHeader(this.requestHeader)));
         responseGenerator = new ResponseGenerator(StatusCodes.OK, getFileType(requestedFile.getAbsolutePath()), requestedFile.length());
-        generateResponseHeader();
-        handle();
+        this.setResponseHandler(responseGenerator.getResponseHeader());
     }
 
     @Override
     public void handle() {
-        if(!requestedFile.canRead()){
+        if (!requestedFile.canRead()) {
             throw new AccessControlException("cannot read file");
         }
-        try{
+        try {
             OutputStreamWriter writer = new OutputStreamWriter(clientSocket.getOutputStream());
             writer.write(responseHeader, 0, responseHeader.length());
             writer.flush();
